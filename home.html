@@ -218,12 +218,7 @@
     </main>
 
     <!-- Floating Chat Button -->
-    <div class="fixed bottom-6 right-5 z-20">
-      <button class="relative w-14 h-14 rounded-full bg-[#5364f1] shadow-xl shadow-indigo-500/30 flex items-center justify-center active:scale-95 transition">
-        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
-        <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-[10px] font-bold flex items-center justify-center border-2 border-[#0a1628]">1</span>
-      </button>
-    </div>
+    
   </div>
 
   <!-- ====================== MODALS ====================== -->
@@ -310,7 +305,7 @@
       <!-- Available Balance -->
       <div class="flex justify-between items-center bg-white/5 rounded-2xl px-4 py-3 mb-5 border border-white/5">
         <span class="text-[10px] font-bold uppercase tracking-wider text-white/40">Available Balance</span>
-        <span class="font-bold">$0.00</span>
+        <span id="withdrawAvailable" class="font-bold">$0.00</span>
       </div>
 
       <!-- Amount -->

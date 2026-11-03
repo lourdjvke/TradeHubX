@@ -75,10 +75,20 @@ async function initChat() {
 }
 
 function injectWidget() {
-  if (document.getElementById('txChatRoot')) return;
+  // Remove any previous instance (prevents double bubbles)
+  document.querySelectorAll('#txChatRoot, #txChatFab, #txChatWelcome, #txChatPanel').forEach(el => el.remove());
+  // Also strip leftover page-level chat FABs if any slipped through
+  document.querySelectorAll('button.relative.w-14.h-14.rounded-full').forEach(btn => {
+    if (btn.closest('#txChatRoot')) return;
+    const parent = btn.parentElement;
+    if (parent && /fixed/.test(parent.className) && /bottom/.test(parent.className)) {
+      parent.remove();
+    }
+  });
 
   const root = document.createElement('div');
   root.id = 'txChatRoot';
+  root.style.cssText = 'position:relative;z-index:60;';
   root.innerHTML = `
     <div id="txChatPanel" class="fixed bottom-20 right-4 z-[60] w-[320px] max-h-[70vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden hidden">
       <div class="bg-[#5b5fcf] text-white px-4 py-3 flex items-center justify-between">
