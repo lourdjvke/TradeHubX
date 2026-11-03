@@ -76,7 +76,7 @@ async function initChat() {
 
 function injectWidget() {
   // Remove any previous instance (prevents double bubbles)
-  document.querySelectorAll('#txChatRoot, #txChatFab, #txChatWelcome, #txChatPanel').forEach(el => el.remove());
+  document.querySelectorAll('#txChatRoot, #txChatFab, #txChatFabWrap, #txChatWelcome, #txChatPanel').forEach(el => el.remove());
   // Also strip leftover page-level chat FABs if any slipped through
   document.querySelectorAll('button.relative.w-14.h-14.rounded-full').forEach(btn => {
     if (btn.closest('#txChatRoot')) return;
@@ -90,7 +90,7 @@ function injectWidget() {
   root.id = 'txChatRoot';
   root.style.cssText = 'position:relative;z-index:60;';
   root.innerHTML = `
-    <div id="txChatPanel" class="fixed bottom-20 right-4 z-[60] w-[320px] max-h-[70vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden hidden">
+    <div id="txChatPanel" style="position:fixed;right:1rem;bottom:5.5rem;left:auto;z-index:60;" class="w-[320px] max-h-[70vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden hidden">
       <div class="bg-[#5b5fcf] text-white px-4 py-3 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold">T</div>
@@ -112,7 +112,7 @@ function injectWidget() {
       </div>
     </div>
 
-    <div id="txChatWelcome" class="fixed bottom-20 right-4 z-[60] w-72 bg-white rounded-2xl shadow-2xl overflow-hidden hidden">
+    <div id="txChatWelcome" style="position:fixed;right:1rem;bottom:5.5rem;left:auto;z-index:60;" class="w-72 bg-white rounded-2xl shadow-2xl overflow-hidden hidden">
       <div class="p-4">
         <div class="flex items-start justify-between mb-3">
           <div class="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
@@ -132,10 +132,12 @@ function injectWidget() {
       </div>
     </div>
 
-    <button id="txChatFab" class="fixed bottom-5 right-4 z-[60] relative w-14 h-14 rounded-full bg-[#5b5fcf] shadow-lg shadow-indigo-500/30 flex items-center justify-center active:scale-95 transition">
-      <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
-      <span class="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center border-2 border-[#0a0e1a]">1</span>
-    </button>
+    <div id="txChatFabWrap" style="position:fixed;right:1rem;bottom:1.25rem;left:auto;z-index:60;">
+      <button id="txChatFab" class="relative w-14 h-14 rounded-full bg-[#5b5fcf] shadow-lg shadow-indigo-500/30 flex items-center justify-center active:scale-95 transition">
+        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+        <span class="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center border-2 border-[#0a0e1a]">1</span>
+      </button>
+    </div>
   `;
   document.body.appendChild(root);
 

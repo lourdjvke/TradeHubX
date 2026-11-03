@@ -61,6 +61,14 @@
     </div>
   </div>
 
+  
+      <section class="lg:col-span-2 bg-slate-900 rounded-2xl border border-white/5 p-5">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Investments</h2>
+        <div id="investmentsAdmin" class="space-y-3 max-h-64 overflow-y-auto text-sm">
+          <p class="text-white/30">Loading…</p>
+        </div>
+      </section>
+
   <!-- Edit modal -->
   <div id="editModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/70">
     <div class="w-full max-w-md bg-slate-900 rounded-2xl p-6 border border-white/10">
@@ -281,6 +289,23 @@
       if (t.uid) await update(ref(db, 'users/' + t.uid + '/transactions/' + id), patch);
       document.getElementById('cancelEdit').click();
     };
+
+    
+    onValue(ref(db, 'investments'), (snap) => {
+      const box = document.getElementById('investmentsAdmin');
+      if (!box) return;
+      box.innerHTML = '';
+      const data = snap.val() || {};
+      const list = Object.values(data).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+      if (!list.length) { box.innerHTML = '<p class="text-white/30">No investments</p>'; return; }
+      list.forEach(inv => {
+        const div = document.createElement('div');
+        div.className = 'p-3 rounded-xl bg-white/5 border border-white/5 flex justify-between';
+        div.innerHTML = `<div><p class="font-semibold">${inv.plan||''}</p><p class="text-xs text-white/40">${inv.email||inv.uid||''}</p></div>
+          <div class="text-right"><p class="font-bold">$${Number(inv.amount||0).toFixed(2)}</p><p class="text-[10px] uppercase text-emerald-400">${inv.status||''}</p></div>`;
+        box.appendChild(div);
+      });
+    });
 
     // Chats
     onValue(ref(db, 'chats'), (snap) => {
