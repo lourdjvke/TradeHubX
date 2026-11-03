@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TradexalPro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+    body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
+    
+    /* Glassmorphic overlay */
+    #authOverlay {
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+    
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid rgba(83, 100, 241, 0.25);
+      border-top-color: #5364f1;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 flex items-center justify-center p-6">
+
+  <!-- Auth Overlay (glassmorphic) -->
+  <div id="authOverlay" class="fixed inset-0 z-[100] hidden flex items-center justify-center">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Card -->
+  <div class="w-full max-w-md bg-[#535a94]/95 rounded-[2.5rem] shadow-2xl border border-white/10 overflow-hidden backdrop-blur-md">
+    
+    <!-- Logo + subtitle -->
+    <div class="p-10 pb-6 text-center">
+      <a href="#">
+        <img 
+          src="https://login.tradexxalpro.com/logo.png" 
+          alt="Tradexal Pro" 
+          class="h-16 md:h-20 flex items-center justify-center mx-auto brightness-200"
+          onerror="this.style.display='none'"
+        >
+      </a>
+      <p class="text-sm text-white/50 mt-2 font-medium">
+        Access your investment dashboard
+      </p>
+    </div>
+
+    <!-- Form -->
+    <form id="loginForm" class="px-10 pb-10">
+      <div class="space-y-4">
+        
+        <!-- Email -->
+        <div class="space-y-1">
+          <label class="text-[10px] font-black text-white/40 uppercase tracking-widest ml-1">
+            Email
+          </label>
+          <input 
+            id="email"
+            type="email" 
+            required
+            placeholder="name@email.com"
+            class="w-full px-5 py-3.5 bg-black/20 border border-white/5 rounded-2xl focus:ring-2 focus:ring-[#5364f1]/40 outline-none transition-all font-bold text-white placeholder:text-white/20"
+          >
+        </div>
+
+        <!-- Password -->
+        <div class="space-y-1">
+          <div class="flex justify-between items-center">
+            <label class="text-[10px] font-black text-white/40 uppercase tracking-widest ml-1">
+              Password
+            </label>
+            <button type="button" class="text-[10px] font-black text-[#5364f1] uppercase hover:text-white transition-colors">
+              Forgot?
+            </button>
+          </div>
+          <input 
+            id="password"
+            type="password" 
+            required
+            placeholder="••••••••"
+            class="w-full px-5 py-3.5 bg-black/20 border border-white/5 rounded-2xl focus:ring-2 focus:ring-[#5364f1]/40 outline-none transition-all font-bold text-white placeholder:text-white/20"
+          >
+        </div>
+
+        <!-- Error message -->
+        <p id="errorMsg" class="text-xs text-red-400 text-center hidden"></p>
+
+        <!-- Sign In button -->
+        <button 
+          type="submit"
+          id="signInBtn"
+          class="w-full py-4 bg-[#5364f1] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-black/20 hover:bg-[#4352d1] active:scale-[0.98] transition-all mt-2"
+        >
+          Sign In
+        </button>
+      </div>
+
+      <!-- Register link -->
+      <div class="mt-8 pt-6 border-t border-white/5 text-center">
+        <p class="text-xs font-medium text-white/40">
+          Don't have an account? 
+          <button type="button" id="registerBtn" class="text-[#5364f1] font-bold hover:text-white transition-colors">
+            Register
+          </button>
+        </p>
+      </div>
+    </form>
+  </div>
+
+  <script type="module">
+    import { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from './js/firebase.js';
+
+    // If already logged in, go to home
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        window.location.href = 'home.html';
+      }
+    });
+
+    const overlay = document.getElementById('authOverlay');
+    const errorMsg = document.getElementById('errorMsg');
+    const form = document.getElementById('loginForm');
+
+    function showOverlay() {
+      overlay.classList.remove('hidden');
+      overlay.classList.add('flex');
+    }
+    function hideOverlay() {
+      overlay.classList.add('hidden');
+      overlay.classList.remove('flex');
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorMsg.classList.add('hidden');
+      showOverlay();
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        // onAuthStateChanged will redirect
+      } catch (err) {
+        hideOverlay();
+        errorMsg.textContent = err.message.replace('Firebase: ', '').replace(/\(auth\/.*\)/, '').trim() || 'Login failed';
+        errorMsg.classList.remove('hidden');
+      }
+    });
+
+    // Simple register (same form)
+    document.getElementById('registerBtn').addEventListener('click', async () => {
+      errorMsg.classList.add('hidden');
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (!email || !password) {
+        errorMsg.textContent = 'Enter email and password first';
+        errorMsg.classList.remove('hidden');
+        return;
+      }
+
+      showOverlay();
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        // onAuthStateChanged will redirect
+      } catch (err) {
+        hideOverlay();
+        errorMsg.textContent = err.message.replace('Firebase: ', '').replace(/\(auth\/.*\)/, '').trim() || 'Registration failed';
+        errorMsg.classList.remove('hidden');
+      }
+    });
+  </script>
+</body>
+</html>

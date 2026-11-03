@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Tradexal Pro – Investment Plans</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; background: #0a1628; color: white; -webkit-font-smoothing: antialiased; }
+    .sidebar { transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .sidebar.open { transform: translateX(0); }
+    .overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+    .overlay.open { opacity: 1; pointer-events: auto; }
+  </style>
+  <script type="module" src="./js/auth-guard.js"></script>
+</head>
+<body class="min-h-screen bg-[#0a1628] text-white overflow-x-hidden">
+
+  <!-- SIDEBAR (same as home) -->
+  <div id="overlay" class="overlay fixed inset-0 bg-black/60 z-40" onclick="closeSidebar()"></div>
+  <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-72 bg-[#0d1b2a] z-50 flex flex-col border-r border-white/5">
+    <div class="p-5 flex items-center gap-3 border-b border-white/5">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center overflow-hidden">
+        <img src="https://login.tradexxalpro.com/logo.png" alt="Logo" class="w-full h-full object-cover brightness-125">
+      </div>
+      <span class="font-bold text-lg tracking-tight">Tradexal Pro</span>
+    </div>
+    <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-6">
+      <div>
+        <p class="px-3 text-[10px] font-bold uppercase tracking-widest text-white/40 mb-2">Insights</p>
+        <a href="home.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition text-sm">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          Overview
+        </a>
+      </div>
+      <div>
+        <p class="px-3 text-[10px] font-bold uppercase tracking-widest text-white/40 mb-2">Growth</p>
+        <a href="plans.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-blue-600 text-white font-medium text-sm">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+          Explore Plans
+        </a>
+        <a href="portfolio.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition text-sm">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+          My Investments
+        </a>
+      </div>
+      <div>
+        <p class="px-3 text-[10px] font-bold uppercase tracking-widest text-white/40 mb-2">Treasury</p>
+        <a href="wallet.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition text-sm">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+          Wallet & Funding
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition text-sm">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
+          Rewards
+        </a>
+      </div>
+      <div>
+        <p class="px-3 text-[10px] font-bold uppercase tracking-widest text-white/40 mb-2">Verification</p>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition text-sm">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          Identity Center
+        </a>
+      </div>
+    </nav>
+    <div class="p-4 border-t border-white/5">
+      <button onclick="handleLogout()" class="flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-red-400 hover:bg-red-500/10 transition text-sm font-medium">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="relative min-h-screen flex flex-col">
+    <header class="sticky top-0 z-30 bg-[#0a1628]/90 backdrop-blur-md px-4 py-3 flex items-center justify-between border-b border-white/5">
+      <button onclick="openSidebar()" class="p-2 -ml-1 rounded-lg hover:bg-white/5 transition">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5 bg-[#0f2a1f] border border-emerald-500/30 text-emerald-400 text-[11px] font-semibold px-3 py-1.5 rounded-full">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          ACCOUNT VERIFIED
+        </div>
+        <div class="w-9 h-9 rounded-full bg-[#1e293b] border border-white/10 flex items-center justify-center text-sm font-bold text-white/90">BK</div>
+      </div>
+    </header>
+
+    <main class="flex-1 px-4 pt-6 pb-28">
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold tracking-tight">Investment Plans</h1>
+        <p class="text-sm text-white/50 mt-1">Secure, ledger-backed growth strategies.</p>
+      </div>
+
+      <!-- Available Ledger -->
+      <div class="flex items-center gap-3 bg-[#2a2d5a] rounded-2xl px-4 py-3.5 mb-6 border border-white/5">
+        <div class="w-10 h-10 rounded-xl bg-indigo-500 flex items-center justify-center">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+        </div>
+        <div>
+          <p class="text-[10px] font-bold uppercase tracking-wider text-white/40">Available Ledger</p>
+          <p class="text-lg font-bold">$0.00</p>
+        </div>
+      </div>
+
+      <!-- Plan Cards -->
+      <div class="space-y-5">
+        <!-- Starter Plan -->
+        <div class="bg-[#2a2d5a] rounded-3xl p-5 border border-white/5 relative">
+          <div class="absolute top-5 right-5 text-right">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-white/40">Expected ROI</p>
+            <p class="text-xl font-bold text-emerald-400">5%</p>
+          </div>
+          <div class="w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <h3 class="text-xl font-bold mb-5">Starter Plan</h3>
+          
+          <div class="space-y-3 mb-5">
+            <div class="flex justify-between items-center bg-white/5 rounded-xl px-4 py-3">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-white/40">Term</span>
+              <span class="font-semibold">30 Days</span>
+            </div>
+            <div class="flex justify-between items-center bg-white/5 rounded-xl px-4 py-3">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-white/40">Range</span>
+              <span class="font-semibold">$100 - $10000</span>
+            </div>
+          </div>
+
+          <button onclick="openStake('Starter Plan')" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold text-sm tracking-wide shadow-lg shadow-teal-500/20 active:scale-[0.98] transition">
+            INVEST NOW
+          </button>
+        </div>
+
+        <!-- Beginner Plan -->
+        <div class="bg-[#2a2d5a] rounded-3xl p-5 border border-white/5 relative">
+          <div class="absolute top-5 right-5 text-right">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-white/40">Expected ROI</p>
+            <p class="text-xl font-bold text-emerald-400">5%</p>
+          </div>
+          <div class="w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <h3 class="text-xl font-bold mb-5">Beginner</h3>
+          
+          <div class="space-y-3 mb-5">
+            <div class="flex justify-between items-center bg-white/5 rounded-xl px-4 py-3">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-white/40">Term</span>
+              <span class="font-semibold">30 Days</span>
+            </div>
+            <div class="flex justify-between items-center bg-white/5 rounded-xl px-4 py-3">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-white/40">Range</span>
+              <span class="font-semibold">$1000 - $10000</span>
+            </div>
+          </div>
+
+          <button onclick="openStake('Beginner')" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold text-sm tracking-wide shadow-lg shadow-teal-500/20 active:scale-[0.98] transition">
+            INVEST NOW
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Chat -->
+    <div class="fixed bottom-6 right-5 z-20">
+      <button class="relative w-14 h-14 rounded-full bg-[#5364f1] shadow-xl shadow-indigo-500/30 flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+        <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-[10px] font-bold flex items-center justify-center border-2 border-[#0a1628]">1</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Confirm Stake Modal (white style matching screenshot) -->
+  <div id="stakeModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+    <div class="w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl text-gray-900">
+      <h3 class="text-xl font-bold mb-1">Confirm Stake</h3>
+      <p class="text-sm text-gray-500 mb-5">Enter the amount you wish to commit to <span id="planName">Starter Plan</span>.</p>
+
+      <div class="flex justify-between items-center mb-4">
+        <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Your Balance</span>
+        <span class="font-bold">$0.00</span>
+      </div>
+
+      <div class="bg-indigo-50 rounded-2xl p-5 mb-5">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-indigo-400 mb-1">Amount to Invest</p>
+        <div class="flex items-center gap-1">
+          <input id="stakeAmount" type="number" value="100" class="text-3xl font-bold bg-transparent outline-none w-full text-gray-900" />
+        </div>
+      </div>
+
+      <button class="w-full py-3.5 rounded-2xl bg-gray-300 text-gray-500 font-bold text-sm tracking-wide mb-3 cursor-not-allowed">
+        CONFIRM INVESTMENT
+      </button>
+
+      <p class="text-center text-xs font-semibold text-rose-500 mb-4">INSUFFICIENT LEDGER BALANCE</p>
+
+      <button onclick="closeStake()" class="w-full py-2 text-sm font-semibold text-gray-400 hover:text-gray-600 transition">
+        CANCEL
+      </button>
+    </div>
+  </div>
+
+  <script>
+    function openSidebar(){ document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('open'); }
+    function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); }
+    function openStake(name){
+      document.getElementById('planName').textContent = name;
+      document.getElementById('stakeModal').classList.remove('hidden');
+      document.getElementById('stakeModal').classList.add('flex');
+    }
+    function closeStake(){
+      document.getElementById('stakeModal').classList.add('hidden');
+      document.getElementById('stakeModal').classList.remove('flex');
+    }
+    document.getElementById('stakeModal').addEventListener('click', function(e){ if(e.target===this) closeStake(); });
+  </script>
+</body>
+</html>
