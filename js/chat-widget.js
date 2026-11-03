@@ -135,7 +135,7 @@ function injectWidget() {
     <div id="txChatFabWrap" style="position:fixed;right:1rem;bottom:1.25rem;left:auto;z-index:60;">
       <button id="txChatFab" class="relative w-14 h-14 rounded-full bg-[#5b5fcf] shadow-lg shadow-indigo-500/30 flex items-center justify-center active:scale-95 transition">
         <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
-        <span class="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center border-2 border-[#0a0e1a]">1</span>
+        <span class="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center ">1</span>
       </button>
     </div>
   `;

