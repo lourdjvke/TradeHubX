@@ -15,6 +15,19 @@
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
     }
+    @keyframes overlay-appear {
+      from { opacity: 0; backdrop-filter: blur(0); -webkit-backdrop-filter: blur(0); }
+      to { opacity: 1; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+    }
+    @keyframes panel-appear {
+      from { opacity: 0; transform: translateY(12px) scale(0.985); filter: blur(5px); }
+      to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    }
+    #adminAccessOverlay { animation: overlay-appear 420ms ease-out both; }
+    #adminAccessOverlay .glass-panel { animation: panel-appear 460ms cubic-bezier(.2,.8,.2,1) both; }
+    @media (prefers-reduced-motion: reduce) {
+      #adminAccessOverlay, #adminAccessOverlay .glass-panel { animation: none; }
+    }
   </style>
 </head>
 <body class="min-h-screen bg-slate-950 text-white">
@@ -32,11 +45,14 @@
       <form id="adminLoginForm" class="space-y-4">
         <div>
           <label for="adminEmail" class="mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-600">Email</label>
-          <input id="adminEmail" type="email" value="support.tradexalpro@gmail.com" class="w-full rounded-2xl border border-slate-200/80 bg-white/70 px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" required>
+          <input id="adminEmail" type="email" autocomplete="username" placeholder="Enter admin email" class="w-full rounded-2xl border border-slate-200/80 bg-white/70 px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" required>
         </div>
         <div>
           <label for="adminPassword" class="mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-600">Password</label>
-          <input id="adminPassword" type="password" value="Benjamin$2006" class="w-full rounded-2xl border border-slate-200/80 bg-white/70 px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" required>
+          <div class="flex overflow-hidden rounded-2xl border border-slate-200/80 bg-white/70 transition focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-200">
+            <input id="adminPassword" type="password" autocomplete="current-password" placeholder="Enter password" class="min-w-0 flex-1 bg-transparent px-4 py-3 text-sm outline-none" required>
+            <button id="togglePassword" type="button" aria-controls="adminPassword" aria-pressed="false" class="px-4 text-xs font-semibold text-slate-600 transition hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500">Show</button>
+          </div>
         </div>
         <div id="adminLoginError" class="hidden rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"></div>
         <button type="submit" class="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">Unlock Admin</button>
@@ -47,99 +63,35 @@
   <div id="adminContent" class="hidden">
     <div class="max-w-6xl mx-auto p-4 md:p-8">
       <header class="flex items-center justify-between mb-8">
-        <div>
-          <h1 class="text-2xl font-bold">Admin Panel</h1>
-          <p class="text-sm text-white/50">Sessions · Pending · Attended · Live support</p>
-        </div>
+        <div><h1 class="text-2xl font-bold">Admin Panel</h1><p class="text-sm text-white/50">Sessions · Pending · Attended · Live support</p></div>
         <a href="home.html" class="text-sm text-indigo-400 hover:text-indigo-300">← Back to app</a>
       </header>
-
       <div class="grid lg:grid-cols-2 gap-6">
-        <section class="bg-slate-900 rounded-2xl border border-white/5 p-5">
-          <h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Active Payment Sessions</h2>
-          <div id="activeSessions" class="space-y-3 max-h-80 overflow-y-auto text-sm">
-            <p class="text-white/30">Loading…</p>
-          </div>
-        </section>
-
-        <section class="bg-slate-900 rounded-2xl border border-white/5 p-5">
-          <h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Pending Transactions</h2>
-          <div id="pendingTxs" class="space-y-3 max-h-96 overflow-y-auto text-sm">
-            <p class="text-white/30">Loading…</p>
-          </div>
-        </section>
-
-        <section class="lg:col-span-2 bg-slate-900 rounded-2xl border border-white/5 p-5">
-          <h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Attended / History</h2>
-          <div id="attendedTxs" class="space-y-3 max-h-80 overflow-y-auto text-sm">
-            <p class="text-white/30">Loading…</p>
-          </div>
-        </section>
-
+        <section class="bg-slate-900 rounded-2xl border border-white/5 p-5"><h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Active Payment Sessions</h2><div id="activeSessions" class="space-y-3 max-h-80 overflow-y-auto text-sm"><p class="text-white/30">Loading…</p></div></section>
+        <section class="bg-slate-900 rounded-2xl border border-white/5 p-5"><h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Pending Transactions</h2><div id="pendingTxs" class="space-y-3 max-h-96 overflow-y-auto text-sm"><p class="text-white/30">Loading…</p></div></section>
+        <section class="lg:col-span-2 bg-slate-900 rounded-2xl border border-white/5 p-5"><h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Attended / History</h2><div id="attendedTxs" class="space-y-3 max-h-80 overflow-y-auto text-sm"><p class="text-white/30">Loading…</p></div></section>
         <section class="lg:col-span-2 bg-slate-900 rounded-2xl border border-white/5 p-5">
           <h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Live Support Chats</h2>
           <div class="grid md:grid-cols-3 gap-4">
-            <div id="chatList" class="space-y-2 max-h-96 overflow-y-auto border-r border-white/5 pr-3">
-              <p class="text-white/30 text-sm">Loading chats…</p>
-            </div>
-            <div class="md:col-span-2 flex flex-col h-96">
-              <div id="adminChatMeta" class="text-xs text-white/40 mb-2">Select a chat</div>
-              <div id="adminChatMsgs" class="flex-1 overflow-y-auto bg-black/20 rounded-xl p-3 space-y-2 mb-3"></div>
-              <div class="flex gap-2">
-                <input id="adminReply" type="text" placeholder="Reply as support…" class="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm outline-none focus:border-indigo-500">
-                <button id="adminSend" class="px-4 py-2 rounded-xl bg-indigo-600 text-sm font-semibold hover:bg-indigo-500">Send</button>
-              </div>
+            <div id="chatList" class="space-y-2 max-h-96 overflow-y-auto border-r border-white/5 pr-3"><p class="text-white/30 text-sm">Loading chats…</p></div>
+            <div class="md:col-span-2 flex flex-col h-96"><div id="adminChatMeta" class="text-xs text-white/40 mb-2">Select a chat</div><div id="adminChatMsgs" class="flex-1 overflow-y-auto bg-black/20 rounded-xl p-3 space-y-2 mb-3"></div>
+              <div class="flex gap-2"><input id="adminReply" type="text" placeholder="Reply as support…" class="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm outline-none focus:border-indigo-500"><button id="adminSend" class="px-4 py-2 rounded-xl bg-indigo-600 text-sm font-semibold hover:bg-indigo-500">Send</button></div>
             </div>
           </div>
         </section>
       </div>
     </div>
-
-    <section class="lg:col-span-2 bg-slate-900 rounded-2xl border border-white/5 p-5">
-      <h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Investments</h2>
-      <div id="investmentsAdmin" class="space-y-3 max-h-64 overflow-y-auto text-sm">
-        <p class="text-white/30">Loading…</p>
-      </div>
-    </section>
-
-    <section class="lg:col-span-2 bg-slate-900 rounded-2xl border border-white/5 p-5">
-      <h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Users / Balances</h2>
-      <div id="usersAdmin" class="space-y-3 max-h-80 overflow-y-auto text-sm">
-        <p class="text-white/30">Loading…</p>
-      </div>
-    </section>
-
+    <section class="lg:col-span-2 bg-slate-900 rounded-2xl border border-white/5 p-5"><h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Investments</h2><div id="investmentsAdmin" class="space-y-3 max-h-64 overflow-y-auto text-sm"><p class="text-white/30">Loading…</p></div></section>
+    <section class="lg:col-span-2 bg-slate-900 rounded-2xl border border-white/5 p-5"><h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Users / Balances</h2><div id="usersAdmin" class="space-y-3 max-h-80 overflow-y-auto text-sm"><p class="text-white/30">Loading…</p></div></section>
     <div id="editModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/70">
-      <div class="w-full max-w-md bg-slate-900 rounded-2xl p-6 border border-white/10">
-        <h3 class="text-lg font-bold mb-4">Edit Transaction</h3>
-        <input type="hidden" id="editTxId">
+      <div class="w-full max-w-md bg-slate-900 rounded-2xl p-6 border border-white/10"><h3 class="text-lg font-bold mb-4">Edit Transaction</h3><input type="hidden" id="editTxId">
         <div class="space-y-3">
-          <div>
-            <label class="text-xs text-white/40 uppercase">Amount ($)</label>
-            <input id="editAmount" type="number" step="0.01" class="w-full mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 outline-none">
-          </div>
-          <div>
-            <label class="text-xs text-white/40 uppercase">Asset</label>
-            <input id="editAsset" type="text" class="w-full mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 outline-none">
-          </div>
-          <div>
-            <label class="text-xs text-white/40 uppercase">Tx Hash / Ref</label>
-            <input id="editTxHash" type="text" class="w-full mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 outline-none">
-          </div>
-          <div>
-            <label class="text-xs text-white/40 uppercase">Status</label>
-            <select id="editStatus" class="w-full mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 outline-none">
-              <option value="pending">pending</option>
-              <option value="approved">approved</option>
-              <option value="rejected">rejected (Declined)</option>
-              <option value="reversed">reversed</option>
-            </select>
-          </div>
+          <div><label class="text-xs text-white/40 uppercase">Amount ($)</label><input id="editAmount" type="number" step="0.01" class="w-full mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 outline-none"></div>
+          <div><label class="text-xs text-white/40 uppercase">Asset</label><input id="editAsset" type="text" class="w-full mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 outline-none"></div>
+          <div><label class="text-xs text-white/40 uppercase">Tx Hash / Ref</label><input id="editTxHash" type="text" class="w-full mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 outline-none"></div>
+          <div><label class="text-xs text-white/40 uppercase">Status</label><select id="editStatus" class="w-full mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 outline-none"><option value="pending">pending</option><option value="approved">approved</option><option value="rejected">rejected (Declined)</option><option value="reversed">reversed</option></select></div>
         </div>
-        <div class="flex gap-2 mt-6">
-          <button id="saveEdit" class="flex-1 py-2.5 rounded-xl bg-indigo-600 font-semibold text-sm">Save</button>
-          <button id="cancelEdit" class="flex-1 py-2.5 rounded-xl bg-white/10 text-sm">Cancel</button>
-        </div>
+        <div class="flex gap-2 mt-6"><button id="saveEdit" class="flex-1 py-2.5 rounded-xl bg-indigo-600 font-semibold text-sm">Save</button><button id="cancelEdit" class="flex-1 py-2.5 rounded-xl bg-white/10 text-sm">Cancel</button></div>
       </div>
     </div>
   </div>
@@ -149,402 +101,163 @@
 
     const DEMO_ADMIN_EMAIL = 'support.tradexalpro@gmail.com';
     const DEMO_ADMIN_PASSWORD = 'Benjamin$2006';
-
     const adminAccessOverlay = document.getElementById('adminAccessOverlay');
     const adminContent = document.getElementById('adminContent');
     const adminLoginForm = document.getElementById('adminLoginForm');
     const adminLoginError = document.getElementById('adminLoginError');
+    const passwordInput = document.getElementById('adminPassword');
+    const togglePassword = document.getElementById('togglePassword');
 
+    togglePassword.addEventListener('click', () => {
+      const showing = passwordInput.type === 'password';
+      passwordInput.type = showing ? 'text' : 'password';
+      togglePassword.textContent = showing ? 'Hide' : 'Show';
+      togglePassword.setAttribute('aria-pressed', String(showing));
+    });
     adminLoginForm.addEventListener('submit', (event) => {
       event.preventDefault();
       const email = document.getElementById('adminEmail').value.trim();
-      const password = document.getElementById('adminPassword').value;
-
+      const password = passwordInput.value;
       if (email.toLowerCase() === DEMO_ADMIN_EMAIL.toLowerCase() && password === DEMO_ADMIN_PASSWORD) {
-        adminAccessOverlay.classList.add('hidden');
-        adminContent.classList.remove('hidden');
-        adminLoginError.classList.add('hidden');
-        adminLoginError.textContent = '';
+        adminAccessOverlay.classList.add('hidden'); adminContent.classList.remove('hidden');
+        adminLoginError.classList.add('hidden'); adminLoginError.textContent = '';
       } else {
-        adminLoginError.textContent = 'Incorrect admin email or password.';
-        adminLoginError.classList.remove('hidden');
+        adminLoginError.textContent = 'Incorrect admin email or password.'; adminLoginError.classList.remove('hidden');
       }
     });
 
     let currentChatId = null;
     let allTxs = {};
-
-    function statusLabel(s) {
-      if (s === 'rejected' || s === 'declined') return 'Declined';
-      return s || '';
-    }
+    function statusLabel(s) { if (s === 'rejected' || s === 'declined') return 'Declined'; return s || ''; }
     function statusClass(s) {
-      if (s === 'pending') return 'text-amber-400';
-      if (s === 'approved') return 'text-emerald-400';
-      if (s === 'rejected' || s === 'declined') return 'text-rose-400';
-      if (s === 'reversed') return 'text-orange-400';
-      return 'text-white/40';
+      if (s === 'pending') return 'text-amber-400'; if (s === 'approved') return 'text-emerald-400';
+      if (s === 'rejected' || s === 'declined') return 'text-rose-400'; if (s === 'reversed') return 'text-orange-400'; return 'text-white/40';
     }
-
     async function ensureUser(uid, email) {
-      const userRef = ref(db, 'users/' + uid);
-      const snap = await get(userRef);
+      const userRef = ref(db, 'users/' + uid); const snap = await get(userRef);
       if (!snap.exists()) {
-        await set(userRef, {
-          uid,
-          email: email || '',
-          balance: 0,
-          invested: 0,
-          accrued: 0,
-          rewards: 0,
-          successfulInvites: 0,
-          pendingRewards: 0,
-          createdAt: Date.now()
-        });
+        await set(userRef, { uid, email: email || '', balance: 0, invested: 0, accrued: 0, rewards: 0, successfulInvites: 0, pendingRewards: 0, createdAt: Date.now() });
         return { balance: 0, invested: 0, accrued: 0 };
       }
       return snap.val();
     }
-
     async function adjustBalance(uid, email, delta) {
       if (!uid || !delta) return;
-      const data = await ensureUser(uid, email);
-      const current = Number(data.balance || 0);
-      const next = Math.max(0, current + delta);
-      await update(ref(db, 'users/' + uid), { balance: next });
-      console.log('[admin] balance', uid, current, '→', next, '(delta', delta + ')');
+      const data = await ensureUser(uid, email); const current = Number(data.balance || 0); const next = Math.max(0, current + delta);
+      await update(ref(db, 'users/' + uid), { balance: next }); console.log('[admin] balance', uid, current, '→', next, '(delta', delta + ')');
     }
-
     async function applyStatusSideEffects(tx, newStatus) {
-      if (!tx || !tx.uid) {
-        console.warn('[admin] no uid on tx', tx);
-        return;
-      }
-      const amount = Number(tx.amount || 0);
-      const prev = tx.status || 'pending';
-
-      if (newStatus === 'approved' && tx.type === 'deposit' && prev === 'pending') {
-        await adjustBalance(tx.uid, tx.email, amount);
-      }
-      if (newStatus === 'approved' && tx.type === 'withdraw' && prev === 'pending') {
-        await adjustBalance(tx.uid, tx.email, -amount);
-      }
-      if (newStatus === 'reversed' && tx.type === 'withdraw' && prev === 'approved') {
-        await adjustBalance(tx.uid, tx.email, amount);
-      }
-      if (newStatus === 'approved' && tx.type === 'deposit' && prev === 'rejected') {
-        await adjustBalance(tx.uid, tx.email, amount);
-      }
-      if ((newStatus === 'rejected' || newStatus === 'declined') && tx.type === 'deposit' && prev === 'approved') {
-        await adjustBalance(tx.uid, tx.email, -amount);
-      }
+      if (!tx || !tx.uid) { console.warn('[admin] no uid on tx', tx); return; }
+      const amount = Number(tx.amount || 0); const prev = tx.status || 'pending';
+      if (newStatus === 'approved' && tx.type === 'deposit' && prev === 'pending') await adjustBalance(tx.uid, tx.email, amount);
+      if (newStatus === 'approved' && tx.type === 'withdraw' && prev === 'pending') await adjustBalance(tx.uid, tx.email, -amount);
+      if (newStatus === 'reversed' && tx.type === 'withdraw' && prev === 'approved') await adjustBalance(tx.uid, tx.email, amount);
+      if (newStatus === 'approved' && tx.type === 'deposit' && prev === 'rejected') await adjustBalance(tx.uid, tx.email, amount);
+      if ((newStatus === 'rejected' || newStatus === 'declined') && tx.type === 'deposit' && prev === 'approved') await adjustBalance(tx.uid, tx.email, -amount);
     }
-
     async function setTxStatus(id, status, extra = {}) {
-      const tx = allTxs[id];
-      if (!tx) {
-        console.warn('[admin] tx not found', id);
-        return;
-      }
+      const tx = allTxs[id]; if (!tx) { console.warn('[admin] tx not found', id); return; }
       try {
-        await applyStatusSideEffects(tx, status);
-        const patch = { status, reviewedAt: Date.now(), ...extra };
+        await applyStatusSideEffects(tx, status); const patch = { status, reviewedAt: Date.now(), ...extra };
         await update(ref(db, 'transactions/' + id), patch);
-        if (tx.uid) {
-          await update(ref(db, 'users/' + tx.uid + '/transactions/' + id), patch).catch(() => {});
-        }
-      } catch (e) {
-        console.error('[admin] setTxStatus failed', e);
-        alert('Failed to update: ' + (e.message || e));
-      }
+        if (tx.uid) await update(ref(db, 'users/' + tx.uid + '/transactions/' + id), patch).catch(() => {});
+      } catch (e) { console.error('[admin] setTxStatus failed', e); alert('Failed to update: ' + (e.message || e)); }
     }
-
     async function deleteTx(id) {
-      const tx = allTxs[id];
-      if (!tx) return;
-      if (!confirm('Delete this transaction permanently?')) return;
-      await remove(ref(db, 'transactions/' + id));
-      if (tx.uid) await remove(ref(db, 'users/' + tx.uid + '/transactions/' + id)).catch(() => {});
+      const tx = allTxs[id]; if (!tx || !confirm('Delete this transaction permanently?')) return;
+      await remove(ref(db, 'transactions/' + id)); if (tx.uid) await remove(ref(db, 'users/' + tx.uid + '/transactions/' + id)).catch(() => {});
     }
-
     async function deleteChat(id) {
       if (!confirm('Delete this chat and all messages?')) return;
       await remove(ref(db, 'chats/' + id));
-      if (currentChatId === id) {
-        currentChatId = null;
-        document.getElementById('adminChatMsgs').innerHTML = '';
-        document.getElementById('adminChatMeta').textContent = 'Select a chat';
-      }
+      if (currentChatId === id) { currentChatId = null; document.getElementById('adminChatMsgs').innerHTML = ''; document.getElementById('adminChatMeta').textContent = 'Select a chat'; }
     }
-
     function renderTxCard(t, { showActions } = {}) {
-      const date = new Date(t.createdAt || 0).toLocaleString();
-      const div = document.createElement('div');
-      div.className = 'p-3 rounded-xl bg-white/5 border border-white/5';
-      div.innerHTML = `
-        <div class="flex justify-between items-start gap-2">
-          <div class="min-w-0">
-            <p class="font-semibold capitalize">${t.type || ''} · ${t.asset || ''}</p>
-            <p class="text-white/50 text-xs truncate">${t.email || t.uid || ''}</p>
-            <p class="text-xs text-white/40 mt-1">ID: ${t.id || ''}</p>
-            <p class="text-xs text-white/40">${date}</p>
-            ${t.txHash ? `<p class="text-xs text-white/30 truncate">Hash: ${t.txHash}</p>` : ''}
-          </div>
-          <div class="text-right flex-shrink-0">
-            <p class="font-bold text-lg">$${Number(t.amount || 0).toFixed(2)}</p>
-            <span class="text-[10px] uppercase font-bold ${statusClass(t.status)}">${statusLabel(t.status)}</span>
-          </div>
-        </div>
-        ${showActions ? `
-        <div class="flex flex-wrap gap-2 mt-3">
-          <button data-id="${t.id}" data-action="approve" class="tx-action px-3 py-1 rounded-lg bg-emerald-600/80 text-xs font-semibold">Approve</button>
-          <button data-id="${t.id}" data-action="reject" class="tx-action px-3 py-1 rounded-lg bg-rose-600/80 text-xs font-semibold">Decline</button>
-          <button data-id="${t.id}" data-action="reverse" class="tx-action px-3 py-1 rounded-lg bg-orange-600/80 text-xs font-semibold">Reverse</button>
-          <button data-id="${t.id}" data-action="edit" class="tx-action px-3 py-1 rounded-lg bg-white/10 text-xs font-semibold">Edit</button>
-          <button data-id="${t.id}" data-action="delete" class="tx-action px-3 py-1 rounded-lg bg-rose-900/80 text-xs font-semibold">Delete</button>
-        </div>` : `
-        <div class="flex gap-2 mt-3">
-          <button data-id="${t.id}" data-action="edit" class="tx-action px-3 py-1 rounded-lg bg-white/10 text-xs font-semibold">Edit</button>
-          ${t.type === 'withdraw' && t.status === 'approved' ? `<button data-id="${t.id}" data-action="reverse" class="tx-action px-3 py-1 rounded-lg bg-orange-600/80 text-xs font-semibold">Reverse</button>` : ''}
-          <button data-id="${t.id}" data-action="delete" class="tx-action px-3 py-1 rounded-lg bg-rose-900/80 text-xs font-semibold">Delete</button>
-        </div>`}
-      `;
+      const date = new Date(t.createdAt || 0).toLocaleString(); const div = document.createElement('div'); div.className = 'p-3 rounded-xl bg-white/5 border border-white/5';
+      div.innerHTML = `<div class="flex justify-between items-start gap-2"><div class="min-w-0"><p class="font-semibold capitalize">${t.type || ''} · ${t.asset || ''}</p><p class="text-white/50 text-xs truncate">${t.email || t.uid || ''}</p><p class="text-xs text-white/40 mt-1">ID: ${t.id || ''}</p><p class="text-xs text-white/40">${date}</p>${t.txHash ? `<p class="text-xs text-white/30 truncate">Hash: ${t.txHash}</p>` : ''}</div><div class="text-right flex-shrink-0"><p class="font-bold text-lg">$${Number(t.amount || 0).toFixed(2)}</p><span class="text-[10px] uppercase font-bold ${statusClass(t.status)}">${statusLabel(t.status)}</span></div></div>${showActions ? `<div class="flex flex-wrap gap-2 mt-3"><button data-id="${t.id}" data-action="approve" class="tx-action px-3 py-1 rounded-lg bg-emerald-600/80 text-xs font-semibold">Approve</button><button data-id="${t.id}" data-action="reject" class="tx-action px-3 py-1 rounded-lg bg-rose-600/80 text-xs font-semibold">Decline</button><button data-id="${t.id}" data-action="reverse" class="tx-action px-3 py-1 rounded-lg bg-orange-600/80 text-xs font-semibold">Reverse</button><button data-id="${t.id}" data-action="edit" class="tx-action px-3 py-1 rounded-lg bg-white/10 text-xs font-semibold">Edit</button><button data-id="${t.id}" data-action="delete" class="tx-action px-3 py-1 rounded-lg bg-rose-900/80 text-xs font-semibold">Delete</button></div>` : `<div class="flex gap-2 mt-3"><button data-id="${t.id}" data-action="edit" class="tx-action px-3 py-1 rounded-lg bg-white/10 text-xs font-semibold">Edit</button>${t.type === 'withdraw' && t.status === 'approved' ? `<button data-id="${t.id}" data-action="reverse" class="tx-action px-3 py-1 rounded-lg bg-orange-600/80 text-xs font-semibold">Reverse</button>` : ''}<button data-id="${t.id}" data-action="delete" class="tx-action px-3 py-1 rounded-lg bg-rose-900/80 text-xs font-semibold">Delete</button></div>`}`;
       return div;
     }
-
     function bindActions(container) {
-      container.querySelectorAll('.tx-action').forEach(btn => {
-        btn.onclick = async () => {
-          const id = btn.dataset.id;
-          const action = btn.dataset.action;
-          if (action === 'approve') await setTxStatus(id, 'approved');
-          if (action === 'reject') await setTxStatus(id, 'rejected');
-          if (action === 'reverse') await setTxStatus(id, 'reversed');
-          if (action === 'edit') openEdit(id);
-          if (action === 'delete') await deleteTx(id);
-        };
-      });
+      container.querySelectorAll('.tx-action').forEach(btn => { btn.onclick = async () => {
+        const { id, action } = btn.dataset;
+        if (action === 'approve') await setTxStatus(id, 'approved'); if (action === 'reject') await setTxStatus(id, 'rejected');
+        if (action === 'reverse') await setTxStatus(id, 'reversed'); if (action === 'edit') openEdit(id); if (action === 'delete') await deleteTx(id);
+      }; });
     }
-
     onValue(ref(db, 'activeSessions'), (snap) => {
-      const box = document.getElementById('activeSessions');
-      box.innerHTML = '';
-      const data = snap.val() || {};
-      const list = Object.values(data)
-        .filter(s => s.status === 'active' || s.status === 'submitted')
-        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-      if (!list.length) {
-        box.innerHTML = '<p class="text-white/30">No active sessions</p>';
-        return;
-      }
+      const box = document.getElementById('activeSessions'); box.innerHTML = ''; const data = snap.val() || {};
+      const list = Object.values(data).filter(s => s.status === 'active' || s.status === 'submitted').sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      if (!list.length) { box.innerHTML = '<p class="text-white/30">No active sessions</p>'; return; }
       list.forEach(s => {
-        const left = Math.max(0, (s.expiresAt || 0) - Date.now());
-        const mins = Math.floor(left / 60000);
-        const secs = Math.floor((left % 60000) / 1000);
-        const div = document.createElement('div');
-        div.className = 'p-3 rounded-xl bg-white/5 border border-white/5';
-        div.innerHTML = `
-          <div class="flex justify-between">
-            <span class="font-semibold capitalize">${s.type || '—'} · ${s.asset || ''}</span>
-            <span class="text-rose-400 text-xs">${s.status}</span>
-          </div>
-          <p class="text-white/50 text-xs mt-1">${s.email || s.uid}</p>
-          <p class="text-xs mt-1">Amount: $${Number(s.amount || 0).toFixed(2)} · Expires in ${mins}:${secs.toString().padStart(2, '0')}</p>
-        `;
-        box.appendChild(div);
+        const left = Math.max(0, (s.expiresAt || 0) - Date.now()); const mins = Math.floor(left / 60000); const secs = Math.floor((left % 60000) / 1000);
+        const div = document.createElement('div'); div.className = 'p-3 rounded-xl bg-white/5 border border-white/5';
+        div.innerHTML = `<div class="flex justify-between"><span class="font-semibold capitalize">${s.type || '—'} · ${s.asset || ''}</span><span class="text-rose-400 text-xs">${s.status}</span></div><p class="text-white/50 text-xs mt-1">${s.email || s.uid}</p><p class="text-xs mt-1">Amount: $${Number(s.amount || 0).toFixed(2)} · Expires in ${mins}:${secs.toString().padStart(2, '0')}</p>`; box.appendChild(div);
       });
     });
-
     onValue(ref(db, 'transactions'), (snap) => {
-      allTxs = snap.val() || {};
-      const list = Object.values(allTxs).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-
-      const pendingBox = document.getElementById('pendingTxs');
-      pendingBox.innerHTML = '';
-      const pending = list.filter(t => t.status === 'pending');
+      allTxs = snap.val() || {}; const list = Object.values(allTxs).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      const pendingBox = document.getElementById('pendingTxs'); pendingBox.innerHTML = ''; const pending = list.filter(t => t.status === 'pending');
       if (!pending.length) pendingBox.innerHTML = '<p class="text-white/30">No pending transactions</p>';
-      else {
-        pending.forEach(t => pendingBox.appendChild(renderTxCard(t, { showActions: true })));
-        bindActions(pendingBox);
-      }
-
-      const attBox = document.getElementById('attendedTxs');
-      attBox.innerHTML = '';
-      const attended = list.filter(t => t.status && t.status !== 'pending');
+      else { pending.forEach(t => pendingBox.appendChild(renderTxCard(t, { showActions: true }))); bindActions(pendingBox); }
+      const attBox = document.getElementById('attendedTxs'); attBox.innerHTML = ''; const attended = list.filter(t => t.status && t.status !== 'pending');
       if (!attended.length) attBox.innerHTML = '<p class="text-white/30">No attended transactions yet</p>';
-      else {
-        attended.forEach(t => attBox.appendChild(renderTxCard(t, { showActions: false })));
-        bindActions(attBox);
-      }
+      else { attended.forEach(t => attBox.appendChild(renderTxCard(t, { showActions: false }))); bindActions(attBox); }
     });
-
     function openEdit(id) {
-      const t = allTxs[id];
-      if (!t) return;
-      document.getElementById('editTxId').value = id;
-      document.getElementById('editAmount').value = t.amount || 0;
-      document.getElementById('editAsset').value = t.asset || '';
-      document.getElementById('editTxHash').value = t.txHash || '';
-      document.getElementById('editStatus').value = t.status || 'pending';
-      const m = document.getElementById('editModal');
-      m.classList.remove('hidden');
-      m.classList.add('flex');
+      const t = allTxs[id]; if (!t) return;
+      document.getElementById('editTxId').value = id; document.getElementById('editAmount').value = t.amount || 0; document.getElementById('editAsset').value = t.asset || '';
+      document.getElementById('editTxHash').value = t.txHash || ''; document.getElementById('editStatus').value = t.status || 'pending';
+      const m = document.getElementById('editModal'); m.classList.remove('hidden'); m.classList.add('flex');
     }
-    document.getElementById('cancelEdit').onclick = () => {
-      const m = document.getElementById('editModal');
-      m.classList.add('hidden');
-      m.classList.remove('flex');
-    };
+    document.getElementById('cancelEdit').onclick = () => { const m = document.getElementById('editModal'); m.classList.add('hidden'); m.classList.remove('flex'); };
     document.getElementById('saveEdit').onclick = async () => {
-      const id = document.getElementById('editTxId').value;
-      const tx = allTxs[id];
-      if (!tx) return;
-      const amount = parseFloat(document.getElementById('editAmount').value) || 0;
-      const asset = document.getElementById('editAsset').value.trim();
-      const txHash = document.getElementById('editTxHash').value.trim();
-      const status = document.getElementById('editStatus').value;
-      const oldAmount = Number(tx.amount || 0);
+      const id = document.getElementById('editTxId').value; const tx = allTxs[id]; if (!tx) return;
+      const amount = parseFloat(document.getElementById('editAmount').value) || 0; const asset = document.getElementById('editAsset').value.trim();
+      const txHash = document.getElementById('editTxHash').value.trim(); const status = document.getElementById('editStatus').value; const oldAmount = Number(tx.amount || 0);
       try {
-        if (status !== tx.status) {
-          await applyStatusSideEffects({ ...tx, amount }, status);
-        } else if (status === 'approved' && amount !== oldAmount) {
-          const delta = amount - oldAmount;
-          if (tx.type === 'deposit') await adjustBalance(tx.uid, tx.email, delta);
-          if (tx.type === 'withdraw') await adjustBalance(tx.uid, tx.email, -delta);
-        }
-        const patch = { amount, asset, txHash, status, reviewedAt: Date.now(), editedAt: Date.now() };
-        await update(ref(db, 'transactions/' + id), patch);
-        if (tx.uid) await update(ref(db, 'users/' + tx.uid + '/transactions/' + id), patch).catch(()=>{});
-        document.getElementById('cancelEdit').click();
-      } catch (e) {
-        alert('Save failed: ' + (e.message || e));
-      }
+        if (status !== tx.status) await applyStatusSideEffects({ ...tx, amount }, status);
+        else if (status === 'approved' && amount !== oldAmount) { const delta = amount - oldAmount; if (tx.type === 'deposit') await adjustBalance(tx.uid, tx.email, delta); if (tx.type === 'withdraw') await adjustBalance(tx.uid, tx.email, -delta); }
+        const patch = { amount, asset, txHash, status, reviewedAt: Date.now(), editedAt: Date.now() }; await update(ref(db, 'transactions/' + id), patch);
+        if (tx.uid) await update(ref(db, 'users/' + tx.uid + '/transactions/' + id), patch).catch(()=>{}); document.getElementById('cancelEdit').click();
+      } catch (e) { alert('Save failed: ' + (e.message || e)); }
     };
-
     onValue(ref(db, 'investments'), (snap) => {
-      const box = document.getElementById('investmentsAdmin');
-      if (!box) return;
-      box.innerHTML = '';
-      const data = snap.val() || {};
-      const list = Object.values(data).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-      if (!list.length) { box.innerHTML = '<p class="text-white/30">No investments</p>'; return; }
-      list.forEach(inv => {
-        const div = document.createElement('div');
-        div.className = 'p-3 rounded-xl bg-white/5 border border-white/5 flex justify-between';
-        div.innerHTML = `<div><p class="font-semibold">${inv.plan||''}</p><p class="text-xs text-white/40">${inv.email||inv.uid||''}</p></div>
-          <div class="text-right"><p class="font-bold">$${Number(inv.amount||0).toFixed(2)}</p><p class="text-[10px] uppercase text-emerald-400">${inv.status||''}</p></div>`;
-        box.appendChild(div);
-      });
+      const box = document.getElementById('investmentsAdmin'); if (!box) return; box.innerHTML = ''; const data = snap.val() || {};
+      const list = Object.values(data).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)); if (!list.length) { box.innerHTML = '<p class="text-white/30">No investments</p>'; return; }
+      list.forEach(inv => { const div = document.createElement('div'); div.className = 'p-3 rounded-xl bg-white/5 border border-white/5 flex justify-between'; div.innerHTML = `<div><p class="font-semibold">${inv.plan||''}</p><p class="text-xs text-white/40">${inv.email||inv.uid||''}</p></div><div class="text-right"><p class="font-bold">$${Number(inv.amount||0).toFixed(2)}</p><p class="text-[10px] uppercase text-emerald-400">${inv.status||''}</p></div>`; box.appendChild(div); });
     });
-
     onValue(ref(db, 'users'), (snap) => {
-      const box = document.getElementById('usersAdmin');
-      if (!box) return;
-      box.innerHTML = '';
-      const data = snap.val() || {};
-      const list = Object.values(data).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+      const box = document.getElementById('usersAdmin'); if (!box) return; box.innerHTML = ''; const data = snap.val() || {}; const list = Object.values(data).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
       if (!list.length) { box.innerHTML = '<p class="text-white/30">No users</p>'; return; }
       list.forEach(u => {
-        const div = document.createElement('div');
-        div.className = 'p-3 rounded-xl bg-white/5 border border-white/5';
-        div.innerHTML = `
-          <div class="flex flex-wrap justify-between gap-2 items-center">
-            <div class="min-w-0">
-              <p class="font-semibold truncate">${u.email || u.uid || ''}</p>
-              <p class="text-xs text-white/40 font-mono">${u.uid || ''}</p>
-            </div>
-            <div class="flex items-center gap-2">
-              <label class="text-xs text-white/40">Bal $</label>
-              <input type="number" step="0.01" value="${Number(u.balance||0)}" data-uid="${u.uid}" class="user-bal w-28 px-2 py-1 rounded-lg bg-black/30 border border-white/10 text-sm">
-              <button data-save-uid="${u.uid}" class="px-3 py-1 rounded-lg bg-indigo-600 text-xs font-semibold">Save</button>
-              <button data-del-uid="${u.uid}" class="px-3 py-1 rounded-lg bg-rose-900/80 text-xs font-semibold">Delete</button>
-            </div>
-          </div>
-          <p class="text-xs text-white/40 mt-1">Invested: $${Number(u.invested||0).toFixed(2)} · Rewards: $${Number(u.rewards||0).toFixed(2)}</p>
-        `;
-        box.appendChild(div);
+        const div = document.createElement('div'); div.className = 'p-3 rounded-xl bg-white/5 border border-white/5';
+        div.innerHTML = `<div class="flex flex-wrap justify-between gap-2 items-center"><div class="min-w-0"><p class="font-semibold truncate">${u.email || u.uid || ''}</p><p class="text-xs text-white/40 font-mono">${u.uid || ''}</p></div><div class="flex items-center gap-2"><label class="text-xs text-white/40">Bal $</label><input type="number" step="0.01" value="${Number(u.balance||0)}" data-uid="${u.uid}" class="user-bal w-28 px-2 py-1 rounded-lg bg-black/30 border border-white/10 text-sm"><button data-save-uid="${u.uid}" class="px-3 py-1 rounded-lg bg-indigo-600 text-xs font-semibold">Save</button><button data-del-uid="${u.uid}" class="px-3 py-1 rounded-lg bg-rose-900/80 text-xs font-semibold">Delete</button></div></div><p class="text-xs text-white/40 mt-1">Invested: $${Number(u.invested||0).toFixed(2)} · Rewards: $${Number(u.rewards||0).toFixed(2)}</p>`; box.appendChild(div);
       });
-      box.querySelectorAll('[data-save-uid]').forEach(btn => {
-        btn.onclick = async () => {
-          const uid = btn.dataset.saveUid;
-          const input = box.querySelector('input.user-bal[data-uid="'+uid+'"]');
-          const bal = parseFloat(input.value) || 0;
-          await update(ref(db, 'users/' + uid), { balance: bal });
-          alert('Balance saved: $' + bal.toFixed(2));
-        };
-      });
-      box.querySelectorAll('[data-del-uid]').forEach(btn => {
-        btn.onclick = async () => {
-          if (!confirm('Delete this user profile data?')) return;
-          await remove(ref(db, 'users/' + btn.dataset.delUid));
-        };
-      });
+      box.querySelectorAll('[data-save-uid]').forEach(btn => { btn.onclick = async () => { const uid = btn.dataset.saveUid; const input = box.querySelector('input.user-bal[data-uid="'+uid+'"]'); const bal = parseFloat(input.value) || 0; await update(ref(db, 'users/' + uid), { balance: bal }); alert('Balance saved: $' + bal.toFixed(2)); }; });
+      box.querySelectorAll('[data-del-uid]').forEach(btn => { btn.onclick = async () => { if (!confirm('Delete this user profile data?')) return; await remove(ref(db, 'users/' + btn.dataset.delUid)); }; });
     });
-
     onValue(ref(db, 'chats'), (snap) => {
-      const box = document.getElementById('chatList');
-      box.innerHTML = '';
-      const data = snap.val() || {};
-      const list = Object.entries(data).map(([id, c]) => ({ id, ...(c.meta || {}) }))
-        .sort((a, b) => (b.lastMessageAt || 0) - (a.lastMessageAt || 0));
-      if (!list.length) {
-        box.innerHTML = '<p class="text-white/30 text-sm">No chats yet</p>';
-        return;
-      }
+      const box = document.getElementById('chatList'); box.innerHTML = ''; const data = snap.val() || {}; const list = Object.entries(data).map(([id, c]) => ({ id, ...(c.meta || {}) })).sort((a, b) => (b.lastMessageAt || 0) - (a.lastMessageAt || 0));
+      if (!list.length) { box.innerHTML = '<p class="text-white/30 text-sm">No chats yet</p>'; return; }
       list.forEach(c => {
-        const div = document.createElement('button');
-        div.className = 'w-full text-left p-3 rounded-xl hover:bg-white/5 border border-transparent hover:border-white/5 transition ' + (currentChatId === c.id ? 'bg-white/10' : '');
-        div.innerHTML = `
-          <div class="flex justify-between items-start gap-2">
-            <div class="min-w-0 flex-1">
-              <p class="text-xs font-mono text-white/60 truncate">${c.id}</p>
-              <p class="text-sm truncate mt-0.5">${c.lastMessage || 'No messages'}</p>
-            </div>
-            <button data-chat-del="${c.id}" class="text-rose-400 text-xs px-2 py-1 hover:bg-rose-500/20 rounded flex-shrink-0">Del</button>
-          </div>
-        `;
-        div.querySelector('div').onclick = () => openChat(c.id);
-        div.querySelector('[data-chat-del]').onclick = (e) => { e.stopPropagation(); deleteChat(c.id); };
-        box.appendChild(div);
+        const div = document.createElement('button'); div.className = 'w-full text-left p-3 rounded-xl hover:bg-white/5 border border-transparent hover:border-white/5 transition ' + (currentChatId === c.id ? 'bg-white/10' : '');
+        div.innerHTML = `<div class="flex justify-between items-start gap-2"><div class="min-w-0 flex-1"><p class="text-xs font-mono text-white/60 truncate">${c.id}</p><p class="text-sm truncate mt-0.5">${c.lastMessage || 'No messages'}</p></div><button data-chat-del="${c.id}" class="text-rose-400 text-xs px-2 py-1 hover:bg-rose-500/20 rounded flex-shrink-0">Del</button></div>`;
+        div.querySelector('div').onclick = () => openChat(c.id); div.querySelector('[data-chat-del]').onclick = (e) => { e.stopPropagation(); deleteChat(c.id); }; box.appendChild(div);
       });
     });
-
     let msgUnsub = null;
     function openChat(id) {
-      currentChatId = id;
-      document.getElementById('adminChatMeta').textContent = 'Chat: ' + id;
-      const box = document.getElementById('adminChatMsgs');
-      box.innerHTML = '';
-      if (msgUnsub) msgUnsub();
+      currentChatId = id; document.getElementById('adminChatMeta').textContent = 'Chat: ' + id; const box = document.getElementById('adminChatMsgs'); box.innerHTML = ''; if (msgUnsub) msgUnsub();
       msgUnsub = onValue(ref(db, 'chats/' + id + '/messages'), (snap) => {
-        box.innerHTML = '';
-        const msgs = snap.val() || {};
-        Object.values(msgs).sort((a, b) => (a.at || 0) - (b.at || 0)).forEach(m => {
-          const mine = m.from === 'admin';
-          const div = document.createElement('div');
-          div.className = 'flex ' + (mine ? 'justify-end' : 'justify-start');
-          div.innerHTML = `<div class="max-w-[80%] px-3 py-2 rounded-2xl text-sm ${mine ? 'bg-indigo-600 text-white' : 'bg-white/10'}">${escapeHtml(m.text || '')}</div>`;
-          box.appendChild(div);
-        });
-        box.scrollTop = box.scrollHeight;
+        box.innerHTML = ''; const msgs = snap.val() || {};
+        Object.values(msgs).sort((a, b) => (a.at || 0) - (b.at || 0)).forEach(m => { const mine = m.from === 'admin'; const div = document.createElement('div'); div.className = 'flex ' + (mine ? 'justify-end' : 'justify-start'); div.innerHTML = `<div class="max-w-[80%] px-3 py-2 rounded-2xl text-sm ${mine ? 'bg-indigo-600 text-white' : 'bg-white/10'}">${escapeHtml(m.text || '')}</div>`; box.appendChild(div); }); box.scrollTop = box.scrollHeight;
       });
     }
-    function escapeHtml(s) {
-      return String(s).replace(/[&<>\"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    }
+    function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
     document.getElementById('adminSend').onclick = async () => {
-      if (!currentChatId) return;
-      const input = document.getElementById('adminReply');
-      const text = input.value.trim();
-      if (!text) return;
-      input.value = '';
-      const msgRef = push(ref(db, 'chats/' + currentChatId + '/messages'));
-      await set(msgRef, { id: msgRef.key, text, from: 'admin', at: Date.now() });
-      await update(ref(db, 'chats/' + currentChatId + '/meta'), {
-        lastMessageAt: Date.now(),
-        lastMessage: text,
-        status: 'open'
-      });
+      if (!currentChatId) return; const input = document.getElementById('adminReply'); const text = input.value.trim(); if (!text) return; input.value = '';
+      const msgRef = push(ref(db, 'chats/' + currentChatId + '/messages')); await set(msgRef, { id: msgRef.key, text, from: 'admin', at: Date.now() });
+      await update(ref(db, 'chats/' + currentChatId + '/meta'), { lastMessageAt: Date.now(), lastMessage: text, status: 'open' });
     };
   </script>
 </body>
