@@ -84,7 +84,7 @@
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
           ACCOUNT VERIFIED
         </div>
-        <div class="w-9 h-9 rounded-full bg-[#1e293b] border border-white/10 flex items-center justify-center text-sm font-bold text-white/90">BK</div>
+        <div class="w-9 h-9 rounded-full bg-[#1e293b] border border-white/10 flex items-center justify-center text-sm font-bold text-white/90"><span data-user-initials>BK</span></div>
       </div>
     </header>
 
@@ -101,14 +101,14 @@
           </h2>
           
           <p class="text-sm text-white/90 mb-6 leading-relaxed">
-            Earn $5 for every friend who joins and starts their investment journey with $50 or more.
+            Earn $20 for every friend who joins using your referral code.
           </p>
 
           <div class="bg-black/20 backdrop-blur rounded-2xl p-4">
             <p class="text-[10px] font-bold uppercase tracking-wider text-white/70 mb-2">Your Personal Link</p>
             <div class="flex items-center gap-2">
-              <div class="flex-1 bg-black/30 rounded-xl px-4 py-2.5 text-sm font-medium truncate">
-                BEN...
+              <div id="referralCodeDisplay" class="flex-1 bg-black/30 rounded-xl px-4 py-2.5 text-sm font-medium truncate font-mono">
+                Loading...
               </div>
               <button onclick="copyLink()" class="bg-white text-gray-900 font-bold text-xs px-4 py-2.5 rounded-xl active:scale-95 transition whitespace-nowrap">
                 COPY LINK
@@ -127,7 +127,7 @@
           </div>
           <div>
             <p class="text-[10px] font-bold uppercase tracking-wider text-white/40 mb-0.5">Total Earned</p>
-            <p class="text-2xl font-bold">$0.00</p>
+            <p id="totalEarned" class="text-2xl font-bold">$0.00</p>
           </div>
         </div>
 
@@ -138,7 +138,7 @@
           </div>
           <div>
             <p class="text-[10px] font-bold uppercase tracking-wider text-white/40 mb-0.5">Successful Invites</p>
-            <p class="text-2xl font-bold">0</p>
+            <p id="successfulInvites" class="text-2xl font-bold">0</p>
           </div>
         </div>
 
@@ -149,7 +149,7 @@
           </div>
           <div>
             <p class="text-[10px] font-bold uppercase tracking-wider text-white/40 mb-0.5">Pending Rewards</p>
-            <p class="text-2xl font-bold">0</p>
+            <p id="pendingRewards" class="text-2xl font-bold">0</p>
           </div>
         </div>
       </div>
@@ -163,17 +163,49 @@
     </div>
   </div>
 
-  <script>
+  <script type="module">
+    import { auth, db, onAuthStateChanged, ref, get } from './js/firebase.js';
+
     function openSidebar(){ document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('open'); }
     function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); }
-    
-    function copyLink(){
-      // Demo only
-      const btn = event.target;
-      const original = btn.textContent;
-      btn.textContent = 'COPIED!';
-      setTimeout(() => btn.textContent = original, 1500);
-    }
+    window.openSidebar = openSidebar;
+    window.closeSidebar = closeSidebar;
+
+    let myReferralId = '';
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return;
+      myReferralId = user.uid;
+      const display = document.getElementById('referralCodeDisplay');
+      if (display) display.textContent = user.uid;
+
+      // Load rewards stats
+      try {
+        const snap = await get(ref(db, 'users/' + user.uid));
+        if (snap.exists()) {
+          const d = snap.val();
+          const earned = d.rewards || 0;
+          const invites = d.successfulInvites || 0;
+          const pending = d.pendingRewards || 0;
+          const elE = document.getElementById('totalEarned');
+          const elI = document.getElementById('successfulInvites');
+          const elP = document.getElementById('pendingRewards');
+          if (elE) elE.textContent = '$' + Number(earned).toFixed(2);
+          if (elI) elI.textContent = invites;
+          if (elP) elP.textContent = pending;
+        }
+      } catch (e) { console.warn(e); }
+    });
+
+    window.copyLink = function() {
+      if (!myReferralId) return;
+      navigator.clipboard.writeText(myReferralId).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = 'COPIED!';
+        setTimeout(() => btn.textContent = original, 1500);
+      });
+    };
   </script>
 </body>
 </html>

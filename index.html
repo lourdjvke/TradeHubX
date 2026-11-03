@@ -175,7 +175,7 @@
           <label class="text-[10px] font-bold text-white/50 uppercase tracking-wider">Referral Code</label>
           <span class="text-[9px] font-semibold text-white/30 uppercase">Optional</span>
         </div>
-        <input id="referral" type="text" placeholder="E.G. ALEX-1234"
+        <input id="referral" type="text" placeholder="Paste referrer UID"
           class="w-full px-4 py-3 bg-[#4a4c7a] border border-white/5 rounded-xl text-white text-sm outline-none focus:border-[#5364f1]/50 transition placeholder:text-white/25 uppercase">
       </div>
 
@@ -226,7 +226,7 @@
   </div>
 
   <script type="module">
-    import { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from './js/firebase.js';
+    import { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, updateProfile, ref, set, get, update, increment } from './js/firebase.js';
 
     // Already logged in?
     onAuthStateChanged(auth, (user) => {
@@ -284,12 +284,60 @@
       errEl.classList.add('hidden');
       showOverlay();
 
+      const firstName = document.getElementById('firstName').value.trim();
+      const lastName = document.getElementById('lastName').value.trim();
       const email = document.getElementById('regEmail').value.trim();
       const password = document.getElementById('regPassword').value;
+      const phone = (document.getElementById('countryCode').value + document.getElementById('phone').value.trim());
+      const referralCode = document.getElementById('referral').value.trim();
 
       try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        // onAuthStateChanged handles redirect
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        const user = cred.user;
+        const displayName = (firstName + ' ' + lastName).trim();
+
+        await updateProfile(user, { displayName });
+
+        // Create user profile in RTDB (referralId = their own uid)
+        await set(ref(db, 'users/' + user.uid), {
+          uid: user.uid,
+          email: email,
+          firstName: firstName,
+          lastName: lastName,
+          displayName: displayName,
+          phone: phone,
+          referralId: user.uid,
+          referredBy: referralCode || null,
+          balance: 0,
+          rewards: 0,
+          successfulInvites: 0,
+          pendingRewards: 0,
+          createdAt: Date.now()
+        });
+
+        // If referral code provided, credit the referrer $20
+        if (referralCode) {
+          try {
+            const referrerSnap = await get(ref(db, 'users/' + referralCode));
+            if (referrerSnap.exists()) {
+              await update(ref(db, 'users/' + referralCode), {
+                rewards: increment(20),
+                successfulInvites: increment(1),
+                pendingRewards: increment(20)
+              });
+              // Record the referral event
+              await set(ref(db, 'referrals/' + referralCode + '/' + user.uid), {
+                referredUid: user.uid,
+                amount: 20,
+                at: Date.now()
+              });
+            }
+          } catch (refErr) {
+            console.warn('Referral credit failed', refErr);
+          }
+        }
+
+        // onAuthStateChanged will redirect
       } catch (err) {
         hideOverlay();
         errEl.textContent = err.message.replace('Firebase: ', '').replace(/\(auth\/.*\)/, '').trim() || 'Registration failed';
