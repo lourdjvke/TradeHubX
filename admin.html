@@ -8,112 +8,168 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     body { font-family: 'Inter', system-ui, sans-serif; }
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      box-shadow: 0 24px 80px rgba(15, 23, 42, 0.42);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
   </style>
 </head>
 <body class="min-h-screen bg-slate-950 text-white">
-  <div class="max-w-6xl mx-auto p-4 md:p-8">
-    <header class="flex items-center justify-between mb-8">
-      <div>
-        <h1 class="text-2xl font-bold">Admin Panel</h1>
-        <p class="text-sm text-white/50">Sessions · Pending · Attended · Live support</p>
+  <div id="adminAccessOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 backdrop-blur-sm">
+    <div class="glass-panel w-full max-w-md rounded-3xl p-6 md:p-8 text-slate-900">
+      <div class="text-center mb-6">
+        <div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-900 text-lg font-bold text-white shadow-lg shadow-slate-900/40">A</div>
+        <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">TradeHubX Admin</p>
+        <h2 class="mt-2 text-2xl font-bold text-slate-900">Secure Access</h2>
       </div>
-      <a href="home.html" class="text-sm text-indigo-400 hover:text-indigo-300">← Back to app</a>
-    </header>
 
-    <div class="grid lg:grid-cols-2 gap-6">
-      <section class="bg-slate-900 rounded-2xl border border-white/5 p-5">
-        <h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Active Payment Sessions</h2>
-        <div id="activeSessions" class="space-y-3 max-h-80 overflow-y-auto text-sm">
-          <p class="text-white/30">Loading…</p>
+      <!-- DEMO ADMIN CREDENTIALS: easy to find in page for local demo/testing only -->
+      <!-- Email: support.tradexalpro@gmail.com -->
+      <!-- Password: Benjamin$2006 -->
+      <form id="adminLoginForm" class="space-y-4">
+        <div>
+          <label for="adminEmail" class="mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-600">Email</label>
+          <input id="adminEmail" type="email" value="support.tradexalpro@gmail.com" class="w-full rounded-2xl border border-slate-200/80 bg-white/70 px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" required>
         </div>
-      </section>
-
-      <section class="bg-slate-900 rounded-2xl border border-white/5 p-5">
-        <h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Pending Transactions</h2>
-        <div id="pendingTxs" class="space-y-3 max-h-96 overflow-y-auto text-sm">
-          <p class="text-white/30">Loading…</p>
+        <div>
+          <label for="adminPassword" class="mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-600">Password</label>
+          <input id="adminPassword" type="password" value="Benjamin$2006" class="w-full rounded-2xl border border-slate-200/80 bg-white/70 px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" required>
         </div>
-      </section>
-
-      <section class="lg:col-span-2 bg-slate-900 rounded-2xl border border-white/5 p-5">
-        <h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Attended / History</h2>
-        <div id="attendedTxs" class="space-y-3 max-h-80 overflow-y-auto text-sm">
-          <p class="text-white/30">Loading…</p>
-        </div>
-      </section>
-
-      <section class="lg:col-span-2 bg-slate-900 rounded-2xl border border-white/5 p-5">
-        <h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Live Support Chats</h2>
-        <div class="grid md:grid-cols-3 gap-4">
-          <div id="chatList" class="space-y-2 max-h-96 overflow-y-auto border-r border-white/5 pr-3">
-            <p class="text-white/30 text-sm">Loading chats…</p>
-          </div>
-          <div class="md:col-span-2 flex flex-col h-96">
-            <div id="adminChatMeta" class="text-xs text-white/40 mb-2">Select a chat</div>
-            <div id="adminChatMsgs" class="flex-1 overflow-y-auto bg-black/20 rounded-xl p-3 space-y-2 mb-3"></div>
-            <div class="flex gap-2">
-              <input id="adminReply" type="text" placeholder="Reply as support…" class="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm outline-none focus:border-indigo-500">
-              <button id="adminSend" class="px-4 py-2 rounded-xl bg-indigo-600 text-sm font-semibold hover:bg-indigo-500">Send</button>
-            </div>
-          </div>
-        </div>
-      </section>
+        <div id="adminLoginError" class="hidden rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"></div>
+        <button type="submit" class="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">Unlock Admin</button>
+      </form>
     </div>
   </div>
 
-  
-      <section class="lg:col-span-2 bg-slate-900 rounded-2xl border border-white/5 p-5">
-        <h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Investments</h2>
-        <div id="investmentsAdmin" class="space-y-3 max-h-64 overflow-y-auto text-sm">
-          <p class="text-white/30">Loading…</p>
+  <div id="adminContent" class="hidden">
+    <div class="max-w-6xl mx-auto p-4 md:p-8">
+      <header class="flex items-center justify-between mb-8">
+        <div>
+          <h1 class="text-2xl font-bold">Admin Panel</h1>
+          <p class="text-sm text-white/50">Sessions · Pending · Attended · Live support</p>
         </div>
-      </section>
+        <a href="home.html" class="text-sm text-indigo-400 hover:text-indigo-300">← Back to app</a>
+      </header>
 
-  
-      <section class="lg:col-span-2 bg-slate-900 rounded-2xl border border-white/5 p-5">
-        <h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Users / Balances</h2>
-        <div id="usersAdmin" class="space-y-3 max-h-80 overflow-y-auto text-sm">
-          <p class="text-white/30">Loading…</p>
-        </div>
-      </section>
+      <div class="grid lg:grid-cols-2 gap-6">
+        <section class="bg-slate-900 rounded-2xl border border-white/5 p-5">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Active Payment Sessions</h2>
+          <div id="activeSessions" class="space-y-3 max-h-80 overflow-y-auto text-sm">
+            <p class="text-white/30">Loading…</p>
+          </div>
+        </section>
 
-  <!-- Edit modal -->
-  <div id="editModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/70">
-    <div class="w-full max-w-md bg-slate-900 rounded-2xl p-6 border border-white/10">
-      <h3 class="text-lg font-bold mb-4">Edit Transaction</h3>
-      <input type="hidden" id="editTxId">
-      <div class="space-y-3">
-        <div>
-          <label class="text-xs text-white/40 uppercase">Amount ($)</label>
-          <input id="editAmount" type="number" step="0.01" class="w-full mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 outline-none">
-        </div>
-        <div>
-          <label class="text-xs text-white/40 uppercase">Asset</label>
-          <input id="editAsset" type="text" class="w-full mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 outline-none">
-        </div>
-        <div>
-          <label class="text-xs text-white/40 uppercase">Tx Hash / Ref</label>
-          <input id="editTxHash" type="text" class="w-full mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 outline-none">
-        </div>
-        <div>
-          <label class="text-xs text-white/40 uppercase">Status</label>
-          <select id="editStatus" class="w-full mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 outline-none">
-            <option value="pending">pending</option>
-            <option value="approved">approved</option>
-            <option value="rejected">rejected (Declined)</option>
-            <option value="reversed">reversed</option>
-          </select>
-        </div>
+        <section class="bg-slate-900 rounded-2xl border border-white/5 p-5">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Pending Transactions</h2>
+          <div id="pendingTxs" class="space-y-3 max-h-96 overflow-y-auto text-sm">
+            <p class="text-white/30">Loading…</p>
+          </div>
+        </section>
+
+        <section class="lg:col-span-2 bg-slate-900 rounded-2xl border border-white/5 p-5">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Attended / History</h2>
+          <div id="attendedTxs" class="space-y-3 max-h-80 overflow-y-auto text-sm">
+            <p class="text-white/30">Loading…</p>
+          </div>
+        </section>
+
+        <section class="lg:col-span-2 bg-slate-900 rounded-2xl border border-white/5 p-5">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Live Support Chats</h2>
+          <div class="grid md:grid-cols-3 gap-4">
+            <div id="chatList" class="space-y-2 max-h-96 overflow-y-auto border-r border-white/5 pr-3">
+              <p class="text-white/30 text-sm">Loading chats…</p>
+            </div>
+            <div class="md:col-span-2 flex flex-col h-96">
+              <div id="adminChatMeta" class="text-xs text-white/40 mb-2">Select a chat</div>
+              <div id="adminChatMsgs" class="flex-1 overflow-y-auto bg-black/20 rounded-xl p-3 space-y-2 mb-3"></div>
+              <div class="flex gap-2">
+                <input id="adminReply" type="text" placeholder="Reply as support…" class="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm outline-none focus:border-indigo-500">
+                <button id="adminSend" class="px-4 py-2 rounded-xl bg-indigo-600 text-sm font-semibold hover:bg-indigo-500">Send</button>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
-      <div class="flex gap-2 mt-6">
-        <button id="saveEdit" class="flex-1 py-2.5 rounded-xl bg-indigo-600 font-semibold text-sm">Save</button>
-        <button id="cancelEdit" class="flex-1 py-2.5 rounded-xl bg-white/10 text-sm">Cancel</button>
+    </div>
+
+    <section class="lg:col-span-2 bg-slate-900 rounded-2xl border border-white/5 p-5">
+      <h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Investments</h2>
+      <div id="investmentsAdmin" class="space-y-3 max-h-64 overflow-y-auto text-sm">
+        <p class="text-white/30">Loading…</p>
+      </div>
+    </section>
+
+    <section class="lg:col-span-2 bg-slate-900 rounded-2xl border border-white/5 p-5">
+      <h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Users / Balances</h2>
+      <div id="usersAdmin" class="space-y-3 max-h-80 overflow-y-auto text-sm">
+        <p class="text-white/30">Loading…</p>
+      </div>
+    </section>
+
+    <div id="editModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/70">
+      <div class="w-full max-w-md bg-slate-900 rounded-2xl p-6 border border-white/10">
+        <h3 class="text-lg font-bold mb-4">Edit Transaction</h3>
+        <input type="hidden" id="editTxId">
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs text-white/40 uppercase">Amount ($)</label>
+            <input id="editAmount" type="number" step="0.01" class="w-full mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 outline-none">
+          </div>
+          <div>
+            <label class="text-xs text-white/40 uppercase">Asset</label>
+            <input id="editAsset" type="text" class="w-full mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 outline-none">
+          </div>
+          <div>
+            <label class="text-xs text-white/40 uppercase">Tx Hash / Ref</label>
+            <input id="editTxHash" type="text" class="w-full mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 outline-none">
+          </div>
+          <div>
+            <label class="text-xs text-white/40 uppercase">Status</label>
+            <select id="editStatus" class="w-full mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 outline-none">
+              <option value="pending">pending</option>
+              <option value="approved">approved</option>
+              <option value="rejected">rejected (Declined)</option>
+              <option value="reversed">reversed</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex gap-2 mt-6">
+          <button id="saveEdit" class="flex-1 py-2.5 rounded-xl bg-indigo-600 font-semibold text-sm">Save</button>
+          <button id="cancelEdit" class="flex-1 py-2.5 rounded-xl bg-white/10 text-sm">Cancel</button>
+        </div>
       </div>
     </div>
   </div>
 
   <script type="module">
     import { db, ref, onValue, push, set, update, get, increment, remove } from './js/firebase.js';
+
+    const DEMO_ADMIN_EMAIL = 'support.tradexalpro@gmail.com';
+    const DEMO_ADMIN_PASSWORD = 'Benjamin$2006';
+
+    const adminAccessOverlay = document.getElementById('adminAccessOverlay');
+    const adminContent = document.getElementById('adminContent');
+    const adminLoginForm = document.getElementById('adminLoginForm');
+    const adminLoginError = document.getElementById('adminLoginError');
+
+    adminLoginForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const email = document.getElementById('adminEmail').value.trim();
+      const password = document.getElementById('adminPassword').value;
+
+      if (email.toLowerCase() === DEMO_ADMIN_EMAIL.toLowerCase() && password === DEMO_ADMIN_PASSWORD) {
+        adminAccessOverlay.classList.add('hidden');
+        adminContent.classList.remove('hidden');
+        adminLoginError.classList.add('hidden');
+        adminLoginError.textContent = '';
+      } else {
+        adminLoginError.textContent = 'Incorrect admin email or password.';
+        adminLoginError.classList.remove('hidden');
+      }
+    });
 
     let currentChatId = null;
     let allTxs = {};
@@ -167,23 +223,18 @@
       const amount = Number(tx.amount || 0);
       const prev = tx.status || 'pending';
 
-      // Deposit approved: credit
       if (newStatus === 'approved' && tx.type === 'deposit' && prev === 'pending') {
         await adjustBalance(tx.uid, tx.email, amount);
       }
-      // Withdraw approved: debit
       if (newStatus === 'approved' && tx.type === 'withdraw' && prev === 'pending') {
         await adjustBalance(tx.uid, tx.email, -amount);
       }
-      // Reverse approved withdraw: credit back
       if (newStatus === 'reversed' && tx.type === 'withdraw' && prev === 'approved') {
         await adjustBalance(tx.uid, tx.email, amount);
       }
-      // If re-approving a previously rejected deposit
       if (newStatus === 'approved' && tx.type === 'deposit' && prev === 'rejected') {
         await adjustBalance(tx.uid, tx.email, amount);
       }
-      // If declining an already-approved deposit (clawback)
       if ((newStatus === 'rejected' || newStatus === 'declined') && tx.type === 'deposit' && prev === 'approved') {
         await adjustBalance(tx.uid, tx.email, -amount);
       }
@@ -275,7 +326,6 @@
       });
     }
 
-    // Active sessions
     onValue(ref(db, 'activeSessions'), (snap) => {
       const box = document.getElementById('activeSessions');
       box.innerHTML = '';
@@ -305,7 +355,6 @@
       });
     });
 
-    // All transactions
     onValue(ref(db, 'transactions'), (snap) => {
       allTxs = snap.val() || {};
       const list = Object.values(allTxs).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
@@ -329,7 +378,6 @@
       }
     });
 
-    // Edit modal
     function openEdit(id) {
       const t = allTxs[id];
       if (!t) return;
@@ -357,11 +405,9 @@
       const status = document.getElementById('editStatus').value;
       const oldAmount = Number(tx.amount || 0);
       try {
-        // Status change with balance effects (uses previous status on tx object)
         if (status !== tx.status) {
           await applyStatusSideEffects({ ...tx, amount }, status);
         } else if (status === 'approved' && amount !== oldAmount) {
-          // Amount edited while already approved — adjust delta
           const delta = amount - oldAmount;
           if (tx.type === 'deposit') await adjustBalance(tx.uid, tx.email, delta);
           if (tx.type === 'withdraw') await adjustBalance(tx.uid, tx.email, -delta);
@@ -375,7 +421,6 @@
       }
     };
 
-    
     onValue(ref(db, 'investments'), (snap) => {
       const box = document.getElementById('investmentsAdmin');
       if (!box) return;
@@ -392,7 +437,6 @@
       });
     });
 
-    
     onValue(ref(db, 'users'), (snap) => {
       const box = document.getElementById('usersAdmin');
       if (!box) return;
@@ -437,7 +481,6 @@
       });
     });
 
-    // Chats
     onValue(ref(db, 'chats'), (snap) => {
       const box = document.getElementById('chatList');
       box.innerHTML = '';
@@ -487,7 +530,7 @@
       });
     }
     function escapeHtml(s) {
-      return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      return String(s).replace(/[&<>\"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     }
     document.getElementById('adminSend').onclick = async () => {
       if (!currentChatId) return;
