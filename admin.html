@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin – TradeHubX</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', system-ui, sans-serif; }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-white">
+  <div class="max-w-6xl mx-auto p-4 md:p-8">
+    <header class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="text-2xl font-bold">Admin Panel</h1>
+        <p class="text-sm text-white/50">Active sessions · Pending txs · Live support</p>
+      </div>
+      <a href="home.html" class="text-sm text-indigo-400 hover:text-indigo-300">← Back to app</a>
+    </header>
+
+    <div class="grid lg:grid-cols-2 gap-6">
+      <!-- Active Sessions -->
+      <section class="bg-slate-900 rounded-2xl border border-white/5 p-5">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Active Payment Sessions</h2>
+        <div id="activeSessions" class="space-y-3 max-h-80 overflow-y-auto text-sm">
+          <p class="text-white/30">Loading…</p>
+        </div>
+      </section>
+
+      <!-- Pending Transactions -->
+      <section class="bg-slate-900 rounded-2xl border border-white/5 p-5">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Pending Transactions</h2>
+        <div id="pendingTxs" class="space-y-3 max-h-80 overflow-y-auto text-sm">
+          <p class="text-white/30">Loading…</p>
+        </div>
+      </section>
+
+      <!-- Live Chats -->
+      <section class="lg:col-span-2 bg-slate-900 rounded-2xl border border-white/5 p-5">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-white/40 mb-4">Live Support Chats</h2>
+        <div class="grid md:grid-cols-3 gap-4">
+          <div id="chatList" class="space-y-2 max-h-96 overflow-y-auto border-r border-white/5 pr-3">
+            <p class="text-white/30 text-sm">Loading chats…</p>
+          </div>
+          <div class="md:col-span-2 flex flex-col h-96">
+            <div id="adminChatMeta" class="text-xs text-white/40 mb-2">Select a chat</div>
+            <div id="adminChatMsgs" class="flex-1 overflow-y-auto bg-black/20 rounded-xl p-3 space-y-2 mb-3"></div>
+            <div class="flex gap-2">
+              <input id="adminReply" type="text" placeholder="Reply as support…" class="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm outline-none focus:border-indigo-500">
+              <button id="adminSend" class="px-4 py-2 rounded-xl bg-indigo-600 text-sm font-semibold hover:bg-indigo-500">Send</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script type="module">
+    import { db, ref, onValue, push, set, update } from './js/firebase.js';
+
+    let currentChatId = null;
+
+    // Active sessions
+    onValue(ref(db, 'activeSessions'), (snap) => {
+      const box = document.getElementById('activeSessions');
+      box.innerHTML = '';
+      const data = snap.val() || {};
+      const list = Object.values(data).filter(s => s.status === 'active' || s.status === 'submitted')
+        .sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
+      if (!list.length) {
+        box.innerHTML = '<p class="text-white/30">No active sessions</p>';
+        return;
+      }
+      list.forEach(s => {
+        const left = Math.max(0, (s.expiresAt||0) - Date.now());
+        const mins = Math.floor(left/60000);
+        const secs = Math.floor((left%60000)/1000);
+        const div = document.createElement('div');
+        div.className = 'p-3 rounded-xl bg-white/5 border border-white/5';
+        div.innerHTML = `
+          <div class="flex justify-between">
+            <span class="font-semibold capitalize">${s.type || '—'} · ${s.asset || ''}</span>
+            <span class="text-rose-400 text-xs">${s.status}</span>
+          </div>
+          <p class="text-white/50 text-xs mt-1">${s.email || s.uid}</p>
+          <p class="text-xs mt-1">Amount: $${Number(s.amount||0).toFixed(2)} · Expires in ${mins}:${secs.toString().padStart(2,'0')}</p>
+        `;
+        box.appendChild(div);
+      });
+    });
+
+    // Pending txs
+    onValue(ref(db, 'transactions'), (snap) => {
+      const box = document.getElementById('pendingTxs');
+      box.innerHTML = '';
+      const data = snap.val() || {};
+      const list = Object.values(data).filter(t => t.status === 'pending')
+        .sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
+      if (!list.length) {
+        box.innerHTML = '<p class="text-white/30">No pending transactions</p>';
+        return;
+      }
+      list.forEach(t => {
+        const date = new Date(t.createdAt||0).toLocaleString();
+        const div = document.createElement('div');
+        div.className = 'p-3 rounded-xl bg-white/5 border border-white/5';
+        div.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="font-semibold capitalize">${t.type} · ${t.asset || ''}</p>
+              <p class="text-white/50 text-xs">${t.email || t.uid}</p>
+              <p class="text-xs text-white/40 mt-1">ID: ${t.id}</p>
+              <p class="text-xs text-white/40">${date}</p>
+            </div>
+            <div class="text-right">
+              <p class="font-bold text-lg">$${Number(t.amount||0).toFixed(2)}</p>
+              <span class="text-[10px] uppercase text-amber-400 font-bold">pending</span>
+            </div>
+          </div>
+          <div class="flex gap-2 mt-3">
+            <button data-id="${t.id}" data-action="approve" class="tx-action px-3 py-1 rounded-lg bg-emerald-600/80 text-xs font-semibold">Approve</button>
+            <button data-id="${t.id}" data-action="reject" class="tx-action px-3 py-1 rounded-lg bg-rose-600/80 text-xs font-semibold">Reject</button>
+          </div>
+        `;
+        box.appendChild(div);
+      });
+      box.querySelectorAll('.tx-action').forEach(btn => {
+        btn.onclick = async () => {
+          const id = btn.dataset.id;
+          const status = btn.dataset.action === 'approve' ? 'approved' : 'rejected';
+          await update(ref(db, 'transactions/' + id), { status, reviewedAt: Date.now() });
+        };
+      });
+    });
+
+    // Chat list
+    onValue(ref(db, 'chats'), (snap) => {
+      const box = document.getElementById('chatList');
+      box.innerHTML = '';
+      const data = snap.val() || {};
+      const list = Object.entries(data).map(([id, c]) => ({ id, ...(c.meta || {}) }))
+        .sort((a,b) => (b.lastMessageAt||0) - (a.lastMessageAt||0));
+      if (!list.length) {
+        box.innerHTML = '<p class="text-white/30 text-sm">No chats yet</p>';
+        return;
+      }
+      list.forEach(c => {
+        const div = document.createElement('button');
+        div.className = 'w-full text-left p-3 rounded-xl hover:bg-white/5 border border-transparent hover:border-white/5 transition ' + (currentChatId === c.id ? 'bg-white/10' : '');
+        div.innerHTML = `
+          <p class="text-xs font-mono text-white/60 truncate">${c.id}</p>
+          <p class="text-sm truncate mt-0.5">${c.lastMessage || 'No messages'}</p>
+        `;
+        div.onclick = () => openChat(c.id);
+        box.appendChild(div);
+      });
+    });
+
+    let msgUnsub = null;
+    function openChat(id) {
+      currentChatId = id;
+      document.getElementById('adminChatMeta').textContent = 'Chat: ' + id;
+      const box = document.getElementById('adminChatMsgs');
+      box.innerHTML = '';
+      if (msgUnsub) msgUnsub();
+      msgUnsub = onValue(ref(db, 'chats/' + id + '/messages'), (snap) => {
+        box.innerHTML = '';
+        const msgs = snap.val() || {};
+        Object.values(msgs).sort((a,b)=>(a.at||0)-(b.at||0)).forEach(m => {
+          const mine = m.from === 'admin';
+          const div = document.createElement('div');
+          div.className = 'flex ' + (mine ? 'justify-end' : 'justify-start');
+          div.innerHTML = `<div class="max-w-[80%] px-3 py-2 rounded-2xl text-sm ${mine ? 'bg-indigo-600 text-white' : 'bg-white/10'}">${escapeHtml(m.text||'')}</div>`;
+          box.appendChild(div);
+        });
+        box.scrollTop = box.scrollHeight;
+      });
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    document.getElementById('adminSend').onclick = async () => {
+      if (!currentChatId) return;
+      const input = document.getElementById('adminReply');
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      const msgRef = push(ref(db, 'chats/' + currentChatId + '/messages'));
+      await set(msgRef, { id: msgRef.key, text, from: 'admin', at: Date.now() });
+      await update(ref(db, 'chats/' + currentChatId + '/meta'), {
+        lastMessageAt: Date.now(),
+        lastMessage: text,
+        status: 'open'
+      });
+    };
+  </script>
+</body>
+</html>
