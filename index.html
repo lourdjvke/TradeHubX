@@ -6,8 +6,11 @@
   <title>TradexalPro</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
-    body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    body { 
+      font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; 
+      -webkit-font-smoothing: antialiased;
+    }
     
     /* Glassmorphic overlay */
     #authOverlay {
@@ -27,99 +30,205 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+
+    /* Chat popup animation */
+    #chatPopup {
+      transform: scale(0.9) translateY(10px);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s ease;
+    }
+    #chatPopup.open {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
   </style>
 </head>
-<body class="min-h-screen bg-slate-950 flex items-center justify-center p-6">
+<body class="min-h-screen bg-[#0a0e1a] flex items-center justify-center p-4 sm:p-6">
 
   <!-- Auth Overlay (glassmorphic) -->
   <div id="authOverlay" class="fixed inset-0 z-[100] hidden flex items-center justify-center">
     <div class="spinner"></div>
   </div>
 
-  <!-- Card -->
-  <div class="w-full max-w-md bg-[#535a94]/95 rounded-[2.5rem] shadow-2xl border border-white/10 overflow-hidden backdrop-blur-md">
+  <!-- ====================== LOGIN CARD ====================== -->
+  <div id="loginCard" class="w-full max-w-md bg-[#535a94]/95 rounded-[2.5rem] shadow-2xl border border-white/10 overflow-hidden backdrop-blur-md">
     
-    <!-- Logo + subtitle -->
     <div class="p-10 pb-6 text-center">
-      <a href="#">
-        <img 
-          src="https://login.tradexxalpro.com/logo.png" 
-          alt="Tradexal Pro" 
-          class="h-16 md:h-20 flex items-center justify-center mx-auto brightness-200"
-          onerror="this.style.display='none'"
-        >
-      </a>
+      <img 
+        src="https://login.tradexxalpro.com/logo.png" 
+        alt="Tradexal Pro" 
+        class="h-16 md:h-20 mx-auto brightness-200"
+        onerror="this.style.display='none'"
+      >
       <p class="text-sm text-white/50 mt-2 font-medium">
         Access your investment dashboard
       </p>
     </div>
 
-    <!-- Form -->
     <form id="loginForm" class="px-10 pb-10">
       <div class="space-y-4">
-        
-        <!-- Email -->
         <div class="space-y-1">
-          <label class="text-[10px] font-black text-white/40 uppercase tracking-widest ml-1">
-            Email
-          </label>
-          <input 
-            id="email"
-            type="email" 
-            required
-            placeholder="name@email.com"
-            class="w-full px-5 py-3.5 bg-black/20 border border-white/5 rounded-2xl focus:ring-2 focus:ring-[#5364f1]/40 outline-none transition-all font-bold text-white placeholder:text-white/20"
-          >
+          <label class="text-[10px] font-black text-white/40 uppercase tracking-widest ml-1">Email</label>
+          <input id="loginEmail" type="email" required placeholder="name@email.com"
+            class="w-full px-5 py-3.5 bg-black/20 border border-white/5 rounded-2xl focus:ring-2 focus:ring-[#5364f1]/40 outline-none transition-all font-bold text-white placeholder:text-white/20">
         </div>
 
-        <!-- Password -->
         <div class="space-y-1">
           <div class="flex justify-between items-center">
-            <label class="text-[10px] font-black text-white/40 uppercase tracking-widest ml-1">
-              Password
-            </label>
-            <button type="button" class="text-[10px] font-black text-[#5364f1] uppercase hover:text-white transition-colors">
-              Forgot?
-            </button>
+            <label class="text-[10px] font-black text-white/40 uppercase tracking-widest ml-1">Password</label>
+            <button type="button" class="text-[10px] font-black text-[#5364f1] uppercase hover:text-white transition-colors">Forgot?</button>
           </div>
-          <input 
-            id="password"
-            type="password" 
-            required
-            placeholder="••••••••"
-            class="w-full px-5 py-3.5 bg-black/20 border border-white/5 rounded-2xl focus:ring-2 focus:ring-[#5364f1]/40 outline-none transition-all font-bold text-white placeholder:text-white/20"
-          >
+          <input id="loginPassword" type="password" required placeholder="••••••••"
+            class="w-full px-5 py-3.5 bg-black/20 border border-white/5 rounded-2xl focus:ring-2 focus:ring-[#5364f1]/40 outline-none transition-all font-bold text-white placeholder:text-white/20">
         </div>
 
-        <!-- Error message -->
-        <p id="errorMsg" class="text-xs text-red-400 text-center hidden"></p>
+        <p id="loginError" class="text-xs text-red-400 text-center hidden"></p>
 
-        <!-- Sign In button -->
-        <button 
-          type="submit"
-          id="signInBtn"
-          class="w-full py-4 bg-[#5364f1] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-black/20 hover:bg-[#4352d1] active:scale-[0.98] transition-all mt-2"
-        >
+        <button type="submit"
+          class="w-full py-4 bg-[#5364f1] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-black/20 hover:bg-[#4352d1] active:scale-[0.98] transition-all mt-2">
           Sign In
         </button>
       </div>
 
-      <!-- Register link -->
       <div class="mt-8 pt-6 border-t border-white/5 text-center">
         <p class="text-xs font-medium text-white/40">
           Don't have an account? 
-          <button type="button" id="registerBtn" class="text-[#5364f1] font-bold hover:text-white transition-colors">
-            Register
-          </button>
+          <button type="button" id="showRegister" class="text-[#5364f1] font-bold hover:text-white transition-colors">Register</button>
         </p>
       </div>
     </form>
   </div>
 
+  <!-- ====================== REGISTER CARD ====================== -->
+  <div id="registerCard" class="hidden w-full max-w-[380px] bg-[#3d3f6b] rounded-[2rem] shadow-2xl border border-white/5 overflow-hidden">
+    
+    <!-- Logo -->
+    <div class="pt-8 pb-4 px-6 text-center">
+      <div class="inline-flex items-center bg-white rounded-lg overflow-hidden shadow-sm">
+        <div class="w-12 h-12 bg-[#c4b5fd] flex items-center justify-center">
+          <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6l-8-4zm0 2.18l6 3v5.82c0 3.9-2.5 7.5-6 8.55-3.5-1.05-6-4.65-6-8.55V7.18l6-3z"/>
+            <path d="M11 10h2v6h-2zm0-4h2v2h-2z"/>
+          </svg>
+        </div>
+        <div class="px-4 py-2">
+          <span class="font-bold text-gray-900 text-lg tracking-tight">Tradexal Pro</span>
+        </div>
+      </div>
+      <p class="text-sm text-white/50 mt-3">Start your wealth journey</p>
+    </div>
+
+    <form id="registerForm" class="px-6 pb-8 space-y-4">
+      
+      <!-- First + Last Name -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-[10px] font-bold text-white/50 uppercase tracking-wider mb-1.5 block">First Name</label>
+          <input id="firstName" type="text" required
+            class="w-full px-4 py-3 bg-[#4a4c7a] border border-white/5 rounded-xl text-white text-sm outline-none focus:border-[#5364f1]/50 transition placeholder:text-white/20">
+        </div>
+        <div>
+          <label class="text-[10px] font-bold text-white/50 uppercase tracking-wider mb-1.5 block">Last Name</label>
+          <input id="lastName" type="text" required
+            class="w-full px-4 py-3 bg-[#4a4c7a] border border-white/5 rounded-xl text-white text-sm outline-none focus:border-[#5364f1]/50 transition placeholder:text-white/20">
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div>
+        <label class="text-[10px] font-bold text-white/50 uppercase tracking-wider mb-1.5 block">Email Address</label>
+        <input id="regEmail" type="email" required placeholder="name@company.com"
+          class="w-full px-4 py-3 bg-[#4a4c7a] border border-white/5 rounded-xl text-white text-sm outline-none focus:border-[#5364f1]/50 transition placeholder:text-white/30">
+      </div>
+
+      <!-- Phone -->
+      <div>
+        <label class="text-[10px] font-bold text-white/50 uppercase tracking-wider mb-1.5 block">Phone Number</label>
+        <div class="flex gap-2">
+          <div class="relative">
+            <select id="countryCode" class="appearance-none bg-[#4a4c7a] border border-white/5 rounded-xl text-white text-sm px-3 py-3 pr-8 outline-none focus:border-[#5364f1]/50">
+              <option value="+1">US (+1)</option>
+              <option value="+44">UK (+44)</option>
+              <option value="+234">NG (+234)</option>
+              <option value="+91">IN (+91)</option>
+              <option value="+86">CN (+86)</option>
+            </select>
+            <svg class="w-4 h-4 absolute right-2 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+          <input id="phone" type="tel" required placeholder="4432765555"
+            class="flex-1 px-4 py-3 bg-[#4a4c7a] border border-white/5 rounded-xl text-white text-sm outline-none focus:border-[#5364f1]/50 transition placeholder:text-white/30">
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div>
+        <label class="text-[10px] font-bold text-white/50 uppercase tracking-wider mb-1.5 block">Set Password</label>
+        <input id="regPassword" type="password" required placeholder="••••••••"
+          class="w-full px-4 py-3 bg-[#4a4c7a] border border-white/5 rounded-xl text-white text-sm outline-none focus:border-[#5364f1]/50 transition placeholder:text-white/30">
+      </div>
+
+      <!-- Referral -->
+      <div>
+        <div class="flex justify-between items-center mb-1.5">
+          <label class="text-[10px] font-bold text-white/50 uppercase tracking-wider">Referral Code</label>
+          <span class="text-[9px] font-semibold text-white/30 uppercase">Optional</span>
+        </div>
+        <input id="referral" type="text" placeholder="E.G. ALEX-1234"
+          class="w-full px-4 py-3 bg-[#4a4c7a] border border-white/5 rounded-xl text-white text-sm outline-none focus:border-[#5364f1]/50 transition placeholder:text-white/25 uppercase">
+      </div>
+
+      <p id="regError" class="text-xs text-red-400 text-center hidden"></p>
+
+      <button type="submit"
+        class="w-full py-3.5 bg-[#5b5fcf] hover:bg-[#4a4ec0] text-white rounded-xl font-bold text-sm tracking-wide active:scale-[0.98] transition-all mt-2">
+        CREATE ACCOUNT
+      </button>
+
+      <div class="text-center pt-2">
+        <p class="text-xs text-white/40">
+          Already have an account? 
+          <button type="button" id="showLogin" class="text-[#a5b4fc] font-semibold hover:text-white transition-colors">Sign In</button>
+        </p>
+      </div>
+    </form>
+  </div>
+
+  <!-- ====================== FLOATING CHAT ====================== -->
+  <div class="fixed bottom-5 right-4 z-50">
+    <!-- Chat Popup -->
+    <div id="chatPopup" class="absolute bottom-16 right-0 w-72 bg-white rounded-2xl shadow-2xl overflow-hidden mb-2">
+      <div class="p-4">
+        <div class="flex items-start justify-between mb-3">
+          <div class="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          </div>
+          <button id="closeChat" class="text-gray-400 hover:text-gray-600 p-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <p class="text-sm text-gray-700 leading-relaxed mb-4">
+          Welcome to tradexxalpro. 👋 Need assistance with a transaction or have a specific question about your portfolio? We're here to help you navigate the platform. How can we assist you today?
+        </p>
+        <button class="w-full py-2.5 bg-[#5b5fcf] text-white rounded-full text-sm font-semibold flex items-center justify-center gap-2 hover:bg-[#4a4ec0] transition">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          Let's chat
+        </button>
+      </div>
+    </div>
+
+    <!-- Chat Button -->
+    <button id="chatBtn" class="relative w-14 h-14 rounded-full bg-[#5b5fcf] shadow-lg shadow-indigo-500/30 flex items-center justify-center active:scale-95 transition">
+      <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+      <span class="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center border-2 border-[#0a0e1a]">1</span>
+    </button>
+  </div>
+
   <script type="module">
     import { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from './js/firebase.js';
 
-    // If already logged in, go to home
+    // Already logged in?
     onAuthStateChanged(auth, (user) => {
       if (user) {
         window.location.href = 'home.html';
@@ -127,8 +236,8 @@
     });
 
     const overlay = document.getElementById('authOverlay');
-    const errorMsg = document.getElementById('errorMsg');
-    const form = document.getElementById('loginForm');
+    const loginCard = document.getElementById('loginCard');
+    const registerCard = document.getElementById('registerCard');
 
     function showOverlay() {
       overlay.classList.remove('hidden');
@@ -139,45 +248,65 @@
       overlay.classList.remove('flex');
     }
 
-    form.addEventListener('submit', async (e) => {
+    // Toggle forms
+    document.getElementById('showRegister').addEventListener('click', () => {
+      loginCard.classList.add('hidden');
+      registerCard.classList.remove('hidden');
+    });
+    document.getElementById('showLogin').addEventListener('click', () => {
+      registerCard.classList.add('hidden');
+      loginCard.classList.remove('hidden');
+    });
+
+    // Login
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      errorMsg.classList.add('hidden');
+      const errEl = document.getElementById('loginError');
+      errEl.classList.add('hidden');
       showOverlay();
 
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-
       try {
-        await signInWithEmailAndPassword(auth, email, password);
-        // onAuthStateChanged will redirect
+        await signInWithEmailAndPassword(auth, 
+          document.getElementById('loginEmail').value.trim(), 
+          document.getElementById('loginPassword').value
+        );
       } catch (err) {
         hideOverlay();
-        errorMsg.textContent = err.message.replace('Firebase: ', '').replace(/\(auth\/.*\)/, '').trim() || 'Login failed';
-        errorMsg.classList.remove('hidden');
+        errEl.textContent = err.message.replace('Firebase: ', '').replace(/\(auth\/.*\)/, '').trim() || 'Login failed';
+        errEl.classList.remove('hidden');
       }
     });
 
-    // Simple register (same form)
-    document.getElementById('registerBtn').addEventListener('click', async () => {
-      errorMsg.classList.add('hidden');
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-
-      if (!email || !password) {
-        errorMsg.textContent = 'Enter email and password first';
-        errorMsg.classList.remove('hidden');
-        return;
-      }
-
+    // Register
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errEl = document.getElementById('regError');
+      errEl.classList.add('hidden');
       showOverlay();
+
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+
       try {
         await createUserWithEmailAndPassword(auth, email, password);
-        // onAuthStateChanged will redirect
+        // onAuthStateChanged handles redirect
       } catch (err) {
         hideOverlay();
-        errorMsg.textContent = err.message.replace('Firebase: ', '').replace(/\(auth\/.*\)/, '').trim() || 'Registration failed';
-        errorMsg.classList.remove('hidden');
+        errEl.textContent = err.message.replace('Firebase: ', '').replace(/\(auth\/.*\)/, '').trim() || 'Registration failed';
+        errEl.classList.remove('hidden');
       }
+    });
+
+    // Chat toggle
+    const chatBtn = document.getElementById('chatBtn');
+    const chatPopup = document.getElementById('chatPopup');
+    const closeChat = document.getElementById('closeChat');
+
+    chatBtn.addEventListener('click', () => {
+      chatPopup.classList.toggle('open');
+    });
+    closeChat.addEventListener('click', () => {
+      chatPopup.classList.remove('open');
     });
   </script>
 </body>
