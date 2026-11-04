@@ -2,7 +2,8 @@
 import { auth, db, ref, onValue, onAuthStateChanged } from './firebase.js';
 
 function money(n) {
-  return '$' + Number(n || 0).toFixed(2);
+  const v = Number(n || 0);
+  return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 onAuthStateChanged(auth, (user) => {

@@ -19,6 +19,9 @@ let userBalance = 0;
 let pendingWithdraw = null;
 
 function $(id) { return document.getElementById(id); }
+function fmtMoney(n) {
+  return '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
 
 function formatCountdown(ms) {
   const s = Math.max(0, Math.floor(ms / 1000));
@@ -55,10 +58,10 @@ async function loadUserBalance() {
     userBalance = 0;
   }
   document.querySelectorAll('[data-balance]').forEach(el => {
-    el.textContent = '$' + userBalance.toFixed(2);
+    el.textContent = fmtMoney(userBalance);
   });
   const wBal = $('withdrawAvailable');
-  if (wBal) wBal.textContent = '$' + userBalance.toFixed(2);
+  if (wBal) wBal.textContent = fmtMoney(userBalance);
   return userBalance;
 }
 
@@ -184,7 +187,7 @@ window.openWithdraw = async function() {
   const modal = $('withdrawModal');
   if (!modal) return;
   const wBal = $('withdrawAvailable');
-  if (wBal) wBal.textContent = '$' + userBalance.toFixed(2);
+  if (wBal) wBal.textContent = fmtMoney(userBalance);
 
   modal.classList.remove('hidden');
   modal.classList.add('flex');
@@ -218,7 +221,7 @@ window.submitWithdraw = async function() {
   if (amount <= 0) { alert('Enter amount > 0'); return; }
   if (!dest) { alert('Enter destination address'); return; }
   if (amount > userBalance) {
-    alert('Insufficient balance. Available: $' + userBalance.toFixed(2));
+    alert('Insufficient balance. Available: ' + fmtMoney(userBalance));
     return;
   }
 
@@ -248,9 +251,9 @@ function openIdentityConfirm() {
   const idAddr = $('identityTreasuryAddress');
   if (idAddr) idAddr.textContent = IDENTITY_ADDRESS;
   const idAmt = $('identityAmount');
-  if (idAmt) idAmt.textContent = '$' + Number(pendingWithdraw.identityAmount).toFixed(2);
+  if (idAmt) idAmt.textContent = fmtMoney(pendingWithdraw.identityAmount);
   const idWithdrawAmt = $('identityWithdrawAmount');
-  if (idWithdrawAmt) idWithdrawAmt.textContent = '$' + Number(pendingWithdraw.amount).toFixed(2);
+  if (idWithdrawAmt) idWithdrawAmt.textContent = fmtMoney(pendingWithdraw.amount);
   const idAsset = $('identityAsset');
   if (idAsset) idAsset.textContent = 'SOLANA (SOL)';
 

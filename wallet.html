@@ -241,7 +241,7 @@
               <p class="text-xs text-white/40">${d} · ${t.id?.slice(0,8)||''}…</p>
             </div>
             <div class="text-right">
-              <p class="font-bold">$${Number(t.amount||0).toFixed(2)}</p>
+              <p class="font-bold">${'$' + Number(t.amount||0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
               <p class="text-[10px] uppercase ${t.status==='pending'?'text-amber-400':t.status==='approved'?'text-emerald-400':(t.status==='rejected'||t.status==='declined')?'text-rose-400':t.status==='reversed'?'text-orange-400':'text-white/40'}">${(t.status==='rejected'||t.status==='declined')?'Declined':(t.status||'')}</p>
             </div>
           </div>`;

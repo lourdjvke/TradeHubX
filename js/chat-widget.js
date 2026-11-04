@@ -95,7 +95,7 @@ function injectWidget() {
         <div class="flex items-center gap-2">
           <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold">T</div>
           <div>
-            <p class="text-sm font-semibold">Support</p>
+            <p class="text-sm font-semibold">tradexalprox</p>
             <p class="text-[10px] text-white/70">Usually replies instantly</p>
           </div>
         </div>
