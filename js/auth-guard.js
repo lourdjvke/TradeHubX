@@ -1,4 +1,4 @@
-// Auth guard + user initials
+// Auth guard + user initials — waits for Firebase auth restore before redirecting
 import { auth, onAuthStateChanged, signOut } from './firebase.js';
 
 function getInitials(user) {
@@ -12,21 +12,27 @@ function getInitials(user) {
   return local.substring(0, 2).toUpperCase() || '??';
 }
 
+let resolved = false;
 onAuthStateChanged(auth, (user) => {
+  resolved = true;
   if (!user) {
-    window.location.href = 'index.html';
+    // Protected pages only — redirect to auth (not landing)
+    const page = (location.pathname.split('/').pop() || '').toLowerCase();
+    if (page && page !== 'auth.html' && page !== 'index.html' && page !== '' && page !== 'admin.html') {
+      window.location.replace('auth.html');
+    }
     return;
   }
   window.currentUser = user;
   const initials = getInitials(user);
 
-  // Prefer data-user-initials
   document.querySelectorAll('[data-user-initials]').forEach(el => {
     el.textContent = initials;
   });
-  // Fallback: any element that still says BK inside rounded-full
   document.querySelectorAll('.rounded-full').forEach(el => {
-    if (el.textContent.trim() === 'BK') el.textContent = initials;
+    if (el.textContent.trim() === 'BK' || el.hasAttribute('data-user-initials')) {
+      el.textContent = initials;
+    }
   });
 });
 
@@ -34,7 +40,7 @@ window.handleLogout = async function() {
   try {
     await signOut(auth);
   } catch (e) {}
-  window.location.href = 'index.html';
+  window.location.href = 'auth.html';
 };
 
 window.getUserInitials = getInitials;
