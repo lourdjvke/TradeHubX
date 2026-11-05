@@ -125,5 +125,85 @@
   </script>
   <script type="module" src="./js/chat-widget.js"></script>
   <script type="module" src="./js/balance-ui.js"></script>
+
+  <script type="module">
+    // Direct RTDB binder (bypass any stale balance-ui cache)
+    import { auth, db, ref, onValue, get, onAuthStateChanged } from './js/firebase.js';
+
+    function money(n) {
+      return '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function setText(id, val) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val;
+    }
+    function paint(uid, d) {
+      d = d || {};
+      const balance = Number(d.balance || 0);
+      const invested = Number(d.invested || 0);
+      const accrued = Number(d.accrued || 0);
+      console.log('[ledger]', uid, { balance, invested, accrued, tx: Object.keys(d.transactions || {}).length });
+      setText('netWorth', money(balance + invested + accrued));
+      setText('ledgerBalance', money(balance));
+      setText('activeInvestments', money(invested));
+      setText('totalPrincipal', money(invested));
+      setText('totalAccrued', '+' + money(accrued));
+      setText('withdrawAvailable', money(balance));
+      setText('stakeBalance', money(balance));
+      document.querySelectorAll('[data-balance]').forEach(el => { el.textContent = money(balance); });
+
+      // history
+      const box = document.getElementById('activityList');
+      if (box) {
+        const list = Object.values(d.transactions || {}).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+        if (!list.length) {
+          box.innerHTML = '<p class="text-white/30 text-sm">No ledger activity found.</p>';
+        } else {
+          box.innerHTML = list.map(t => {
+            const st = t.status || '';
+            const stLabel = (st === 'rejected' || st === 'declined') ? 'Declined' : st;
+            const stClass = st === 'pending' ? 'text-amber-400' : st === 'approved' ? 'text-emerald-400' : (st === 'rejected' || st === 'declined') ? 'text-rose-400' : 'text-white/40';
+            return `<div class="flex justify-between items-center py-2 border-b border-white/5 text-sm">
+              <div><p class="font-medium capitalize">${t.type||''} · ${t.asset||''}</p>
+              <p class="text-xs text-white/40">${new Date(t.createdAt||0).toLocaleString()}</p></div>
+              <div class="text-right"><p class="font-bold">${money(t.amount)}</p>
+              <p class="text-[10px] uppercase ${stClass}">${stLabel}</p></div></div>`;
+          }).join('');
+        }
+      }
+
+      // investments list
+      const invBox = document.getElementById('investmentsList');
+      if (invBox) {
+        const invs = Object.values(d.investments || {}).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+        if (!invs.length) {
+          invBox.innerHTML = '<p class="text-center py-6 text-white/30 text-sm">No active deployments found.</p>';
+        } else {
+          invBox.innerHTML = invs.map(inv => `
+            <div class="flex justify-between items-center py-3 border-b border-white/5 text-sm">
+              <div><p class="font-medium">${inv.plan||'Plan'}</p>
+              <p class="text-xs text-white/40">${new Date(inv.createdAt||0).toLocaleDateString()}</p></div>
+              <div class="text-right"><p class="font-bold">${money(inv.amount)}</p>
+              <p class="text-xs text-emerald-400">+${money(inv.returns||0)}</p></div></div>`).join('');
+        }
+      }
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        console.warn('[ledger] not signed in');
+        return;
+      }
+      const path = 'users/' + user.uid;
+      try {
+        const snap = await get(ref(db, path));
+        paint(user.uid, snap.val());
+      } catch (e) {
+        console.error('[ledger] get failed', e);
+      }
+      onValue(ref(db, path), (snap) => paint(user.uid, snap.val()), (e) => console.error('[ledger] listen failed', e));
+    });
+  </script>
+
 </body>
 </html>
