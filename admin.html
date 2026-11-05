@@ -229,6 +229,68 @@
       const list = Object.values(data).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)); if (!list.length) { box.innerHTML = '<p class="text-white/30">No investments</p>'; return; }
       list.forEach(inv => { const div = document.createElement('div'); div.className = 'p-3 rounded-xl bg-white/5 border border-white/5 flex justify-between'; div.innerHTML = `<div><p class="font-semibold">${inv.plan||''}</p><p class="text-xs text-white/40">${inv.email||inv.uid||''}</p></div><div class="text-right"><p class="font-bold">${fmtMoney(inv.amount)}</p><p class="text-[10px] uppercase text-emerald-400">${inv.status||''}</p></div>`; box.appendChild(div); });
     });
+    
+    onValue(ref(db, 'kyc'), (snap) => {
+      const box = document.getElementById('kycAdmin');
+      if (!box) return;
+      box.innerHTML = '';
+      const root = snap.val() || {};
+      const items = [];
+      Object.keys(root).forEach(uid => {
+        const node = root[uid] || {};
+        if (node.latest) items.push({ ...node.latest, uid: node.latest.uid || uid });
+        else if (node.fileUrl) items.push({ ...node, uid });
+        else if (node.submissions) {
+          Object.values(node.submissions).forEach(s => items.push({ ...s, uid: s.uid || uid }));
+        }
+      });
+      // unique by latest per uid preferred
+      const byUid = {};
+      items.forEach(i => {
+        const u = i.uid;
+        if (!byUid[u] || (i.submittedAt||0) > (byUid[u].submittedAt||0)) byUid[u] = i;
+      });
+      const list = Object.values(byUid).sort((a,b)=>(b.submittedAt||0)-(a.submittedAt||0));
+      if (!list.length) {
+        box.innerHTML = '<p class="text-white/30">No KYC submissions</p>';
+        return;
+      }
+      list.forEach(k => {
+        const div = document.createElement('div');
+        div.className = 'p-3 rounded-xl bg-white/5 border border-white/5';
+        const st = k.status || 'pending';
+        div.innerHTML = `
+          <div class="flex flex-wrap gap-3 items-start">
+            <a href="${k.fileUrl||'#'}" target="_blank" rel="noopener" class="flex-shrink-0">
+              ${k.fileUrl && !(k.mime||'').includes('pdf') && !(k.fileUrl||'').endsWith('.pdf')
+                ? `<img src="${k.fileUrl}" class="w-20 h-20 rounded-xl object-cover bg-black/40" alt="ID">`
+                : `<div class="w-20 h-20 rounded-xl bg-black/40 flex items-center justify-center text-xs text-white/40">DOC</div>`}
+            </a>
+            <div class="min-w-0 flex-1">
+              <p class="font-semibold">${k.docType || 'Document'}</p>
+              <p class="text-xs text-white/50 truncate">${k.email || k.uid || ''}</p>
+              <p class="text-xs text-white/40">${new Date(k.submittedAt||0).toLocaleString()}</p>
+              <p class="text-[10px] uppercase font-bold mt-1 ${st==='verified'?'text-emerald-400':st==='pending'?'text-amber-400':'text-rose-400'}">${st}</p>
+              <div class="flex flex-wrap gap-2 mt-2">
+                <button data-kyc-uid="${k.uid}" data-kyc-action="verified" class="kyc-act px-3 py-1 rounded-lg bg-emerald-600/80 text-xs font-semibold">Verify</button>
+                <button data-kyc-uid="${k.uid}" data-kyc-action="declined" class="kyc-act px-3 py-1 rounded-lg bg-rose-600/80 text-xs font-semibold">Decline</button>
+                <a href="${k.fileUrl||'#'}" target="_blank" class="px-3 py-1 rounded-lg bg-white/10 text-xs font-semibold">Open file</a>
+              </div>
+            </div>
+          </div>`;
+        box.appendChild(div);
+      });
+      box.querySelectorAll('.kyc-act').forEach(btn => {
+        btn.onclick = async () => {
+          const uid = btn.dataset.kycUid;
+          const status = btn.dataset.kycAction;
+          const reviewedAt = Date.now();
+          await update(ref(db, 'kyc/' + uid + '/latest'), { status, reviewedAt });
+          await update(ref(db, 'users/' + uid + '/kyc'), { status, reviewedAt });
+        };
+      });
+    });
+
     onValue(ref(db, 'users'), (snap) => {
       const box = document.getElementById('usersAdmin'); if (!box) return; box.innerHTML = ''; const data = snap.val() || {}; const list = Object.values(data).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
       if (!list.length) { box.innerHTML = '<p class="text-white/30">No users</p>'; return; }

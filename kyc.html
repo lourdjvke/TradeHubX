@@ -88,7 +88,7 @@
     <main class="flex-1 px-4 pt-6 pb-28">
       <div class="mb-6 text-center">
         <h1 class="text-2xl font-bold tracking-tight">KYC Verification</h1>
-        <p class="text-sm mt-1">Status: <span class="text-amber-400 font-semibold">Unverified</span></p>
+        <p class="text-sm mt-1">Status: <span id="kycStatusLabel" class="text-amber-400 font-semibold">Unverified</span></p>
       </div>
 
       <!-- Verification Status Card -->
@@ -136,9 +136,15 @@
           </div>
         </div>
 
-        <button class="w-full py-3.5 rounded-2xl bg-indigo-500 text-white font-bold text-sm tracking-wide active:scale-[0.98] transition">
+        <input id="kycFile" type="file" accept="image/*,.pdf,image/jpeg,image/png,image/webp" class="hidden">
+        <button type="button" onclick="document.getElementById('kycFile').click()" id="pickFileBtn" class="w-full mb-3 py-3.5 rounded-2xl bg-white/5 border border-white/10 text-white/80 font-semibold text-sm tracking-wide active:scale-[0.98] transition">
+          CHOOSE FILE
+        </button>
+        <p id="kycFileName" class="text-xs text-white/40 mb-3 text-center hidden"></p>
+        <button type="button" id="kycSubmitBtn" onclick="submitKyc()" class="w-full py-3.5 rounded-2xl bg-indigo-500 text-white font-bold text-sm tracking-wide active:scale-[0.98] transition disabled:opacity-50">
           UPLOAD & SUBMIT
         </button>
+        <p id="kycMsg" class="text-xs text-center mt-3 text-white/40"></p>
       </div>
 
       <!-- Uploaded Documents -->
@@ -146,7 +152,7 @@
         <div class="px-5 py-4 border-b border-white/5">
           <p class="text-[11px] font-bold uppercase tracking-widest text-white/50">Uploaded Documents</p>
         </div>
-        <div class="px-5 py-10 text-center text-white/30 text-sm">
+        <div id="kycDocsList" class="px-5 py-6 text-center text-white/30 text-sm">
           No documentation uploaded.
         </div>
       </div>
@@ -155,40 +161,161 @@
     
   </div>
 
+  
   <script>
     function openSidebar(){ document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('open'); }
     function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); }
-    
-    function toggleDocDropdown(){
-      document.getElementById('docDropdown').classList.toggle('hidden');
-    }
-    
+    function toggleDocDropdown(){ document.getElementById('docDropdown').classList.toggle('hidden'); }
     function selectDoc(name){
       document.getElementById('selectedDoc').textContent = name;
       document.getElementById('docDropdown').classList.add('hidden');
-      
-      // Reset radios
-      ['radio-passport','radio-license','radio-id','radio-address'].forEach(id => {
-        const el = document.getElementById(id);
-        if(el) {
-          el.className = 'w-5 h-5 rounded-full border-2 border-white/20';
-          el.innerHTML = '';
-        }
+      ['passport','license','id','address'].forEach(function(k){
+        var el = document.getElementById('radio-' + k);
+        if (!el) return;
+        el.className = 'w-5 h-5 rounded-full border-2 border-white/20';
+        el.innerHTML = '';
       });
-      
-      // Set selected
-      let target;
-      if(name.includes('Passport')) target = 'radio-passport';
-      else if(name.includes('License')) target = 'radio-license';
-      else if(name.includes('ID')) target = 'radio-id';
-      else target = 'radio-address';
-      
-      const selected = document.getElementById(target);
-      if(selected){
-        selected.className = 'w-5 h-5 rounded-full border-2 border-indigo-400 flex items-center justify-center';
-        selected.innerHTML = '<div class="w-2.5 h-2.5 rounded-full bg-indigo-400"></div>';
+      var map = {'International Passport':'passport',"Driver's License":'license','National ID Card':'id','Proof of Address':'address'};
+      var key = map[name];
+      var active = document.getElementById('radio-' + key);
+      if (active) {
+        active.className = 'w-5 h-5 rounded-full border-2 border-indigo-400 flex items-center justify-center';
+        active.innerHTML = '<div class="w-2.5 h-2.5 rounded-full bg-indigo-400"></div>';
       }
     }
+  </script>
+  <script type="module">
+    import { auth, db, ref, set, onValue, onAuthStateChanged } from './js/firebase.js';
+    import { uploadKycFile, fileToDataUrl } from './js/supabase.js';
+
+    let selectedFile = null;
+
+    const fileInput = document.getElementById('kycFile');
+    if (fileInput) {
+      fileInput.addEventListener('change', () => {
+        selectedFile = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+        const nameEl = document.getElementById('kycFileName');
+        if (selectedFile) {
+          nameEl.textContent = selectedFile.name + ' (' + Math.round(selectedFile.size/1024) + ' KB)';
+          nameEl.classList.remove('hidden');
+        } else {
+          nameEl.classList.add('hidden');
+        }
+      });
+    }
+
+    function statusColor(s) {
+      if (s === 'verified') return 'text-emerald-400';
+      if (s === 'declined' || s === 'rejected') return 'text-rose-400';
+      if (s === 'pending') return 'text-amber-400';
+      return 'text-amber-400';
+    }
+    function statusLabel(s) {
+      if (!s || s === 'unverified') return 'Unverified';
+      if (s === 'verified') return 'Verified';
+      if (s === 'declined' || s === 'rejected') return 'Declined';
+      if (s === 'pending') return 'Pending';
+      return s;
+    }
+
+    function renderDocs(list) {
+      const box = document.getElementById('kycDocsList');
+      if (!box) return;
+      if (!list.length) {
+        box.innerHTML = '<p class="text-white/30 text-sm text-center py-4">No documentation uploaded.</p>';
+        return;
+      }
+      box.innerHTML = list.map(d => `
+        <div class="flex items-center gap-3 py-3 border-b border-white/5 text-left">
+          ${d.fileUrl && !String(d.fileUrl).endsWith('.pdf')
+            ? `<img src="${d.fileUrl}" alt="" class="w-14 h-14 rounded-xl object-cover bg-black/30">`
+            : `<div class="w-14 h-14 rounded-xl bg-white/5 flex items-center justify-center text-xs text-white/40">DOC</div>`}
+          <div class="min-w-0 flex-1">
+            <p class="font-medium text-sm truncate">${d.docType || 'Document'}</p>
+            <p class="text-[10px] text-white/40">${new Date(d.submittedAt||0).toLocaleString()}</p>
+          </div>
+          <span class="text-[10px] font-bold uppercase ${statusColor(d.status)}">${statusLabel(d.status)}</span>
+        </div>
+      `).join('');
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) return;
+      onValue(ref(db, 'kyc/' + user.uid), (snap) => {
+        const data = snap.val();
+        const label = document.getElementById('kycStatusLabel');
+        if (!data) {
+          if (label) { label.textContent = 'Unverified'; label.className = 'text-amber-400 font-semibold'; }
+          renderDocs([]);
+          return;
+        }
+        // data can be single object or map of submissions
+        let items = [];
+        if (data.fileUrl || data.docType) {
+          items = [data];
+        } else {
+          items = Object.values(data).filter(x => x && (x.fileUrl || x.docType));
+        }
+        items.sort((a,b) => (b.submittedAt||0) - (a.submittedAt||0));
+        const top = items[0];
+        const st = (top && top.status) || data.status || 'unverified';
+        if (label) {
+          label.textContent = statusLabel(st);
+          label.className = statusColor(st) + ' font-semibold';
+        }
+        renderDocs(items);
+      });
+    });
+
+    window.submitKyc = async function() {
+      const user = auth.currentUser;
+      if (!user) { alert('Please sign in'); return; }
+      if (!selectedFile) { alert('Choose a file first'); return; }
+      const docType = document.getElementById('selectedDoc').textContent.trim();
+      const btn = document.getElementById('kycSubmitBtn');
+      const msg = document.getElementById('kycMsg');
+      btn.disabled = true;
+      msg.textContent = 'Uploading…';
+      msg.className = 'text-xs text-center mt-3 text-amber-300';
+      try {
+        const safe = selectedFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const path = user.uid + '/' + Date.now() + '_' + safe;
+        let fileUrl;
+        try {
+          fileUrl = await uploadKycFile(selectedFile, path);
+        } catch (upErr) {
+          console.warn('Supabase upload failed, using embedded preview', upErr);
+          if (selectedFile.size > 900000) throw upErr;
+          fileUrl = await fileToDataUrl(selectedFile);
+        }
+        const payload = {
+          uid: user.uid,
+          email: user.email || '',
+          docType,
+          fileName: selectedFile.name,
+          filePath: path,
+          fileUrl,
+          mime: selectedFile.type || '',
+          status: 'pending',
+          submittedAt: Date.now()
+        };
+        // latest + history entry
+        await set(ref(db, 'kyc/' + user.uid + '/latest'), payload);
+        await set(ref(db, 'kyc/' + user.uid + '/submissions/' + Date.now()), payload);
+        await set(ref(db, 'users/' + user.uid + '/kyc'), { status: 'pending', docType, fileUrl, submittedAt: payload.submittedAt });
+        msg.textContent = 'Submitted — status: pending';
+        msg.className = 'text-xs text-center mt-3 text-emerald-400';
+        selectedFile = null;
+        fileInput.value = '';
+        document.getElementById('kycFileName').classList.add('hidden');
+      } catch (e) {
+        console.error(e);
+        msg.textContent = 'Upload failed: ' + (e.message || e);
+        msg.className = 'text-xs text-center mt-3 text-rose-400';
+      } finally {
+        btn.disabled = false;
+      }
+    };
   </script>
   <script type="module" src="./js/chat-widget.js"></script>
 </body>
