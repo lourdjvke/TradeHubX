@@ -209,6 +209,30 @@ window.toggleMethodDropdown = function() {
   if (chevron) chevron.classList.toggle('rotate-180');
 };
 
+window.selectWithdrawMethod = function(name) {
+  selectedAsset = name === 'BTC' || name === 'BITCOIN' ? 'BTC' : (name === 'SOL' || name === 'SOLANA' ? 'SOL' : 'TRON');
+  const label = selectedAsset === 'BTC' ? 'Bitcoin' : selectedAsset === 'SOL' ? 'Solana' : 'TRON';
+  const sub = selectedAsset === 'BTC' ? 'BTC' : selectedAsset === 'SOL' ? 'SOL' : 'TRX / USDT-TRC20';
+  const title = $('withdrawMethodLabel');
+  const subtitle = $('withdrawMethodSub');
+  if (title) title.textContent = label === 'Bitcoin' ? 'BITCOIN' : label;
+  if (subtitle) subtitle.textContent = sub;
+  // also update plain text nodes if ids missing
+  const btn = document.querySelector('#withdrawModal button[onclick="toggleMethodDropdown()"]');
+  if (btn) {
+    const ps = btn.querySelectorAll('p');
+    if (ps[0]) ps[0].textContent = selectedAsset === 'BTC' ? 'BITCOIN' : selectedAsset === 'SOL' ? 'SOLANA' : 'TRON';
+    if (ps[1]) ps[1].textContent = sub;
+  }
+  const dd = $('methodDropdown');
+  if (dd) dd.classList.add('hidden');
+  const chevron = $('methodChevron');
+  if (chevron) chevron.classList.remove('rotate-180');
+  if (currentSessionId) {
+    update(ref(db, 'activeSessions/' + currentSessionId), { asset: selectedAsset }).catch(()=>{});
+  }
+};
+
 // Step 1 → identity confirm (NO save yet)
 window.submitWithdraw = async function() {
   const user = auth.currentUser;

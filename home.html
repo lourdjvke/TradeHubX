@@ -326,12 +326,12 @@
             <svg id="methodChevron" class="w-5 h-5 text-white/40 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </button>
           
-          <div id="methodDropdown" class="hidden absolute left-0 right-0 mt-2 bg-[#1e2142] rounded-2xl border border-white/10 overflow-hidden z-10 shadow-xl">
-            <button class="w-full text-left px-4 py-3 hover:bg-white/5 border-b border-white/5">
+          <div id="methodDropdown" class="hidden absolute left-0 right-0 mt-2 bg-[#1e2142] rounded-2xl border border-white/10 overflow-hidden z-20 shadow-xl">
+            <button type="button" onclick="selectWithdrawMethod('TRON')" class="w-full text-left px-4 py-3 hover:bg-white/5 border-b border-white/5">
               <p class="font-semibold text-sm">TRON</p>
               <p class="text-xs text-white/40">TRX / USDT-TRC20</p>
             </button>
-            <button class="w-full text-left px-4 py-3 hover:bg-white/5">
+            <button type="button" onclick="selectWithdrawMethod('BTC')" class="w-full text-left px-4 py-3 hover:bg-white/5">
               <p class="font-semibold text-sm">BITCOIN</p>
               <p class="text-xs text-white/40">BTC</p>
             </button>
