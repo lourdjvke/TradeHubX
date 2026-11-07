@@ -56,9 +56,7 @@
         <h2 class="mt-2 text-2xl font-bold text-slate-900">Secure Access</h2>
       </div>
 
-      <!-- DEMO ADMIN CREDENTIALS: easy to find in page for local demo/testing only -->
-      <!-- Email: support.tradexalpro@gmail.com -->
-      <!-- Password: Benjamin$2006 -->
+      <!-- Admin gate: password required; no active password configured -->
       <form id="adminLoginForm" class="space-y-4">
         <div>
           <label for="adminEmail" class="mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-600">Email</label>
@@ -117,7 +115,7 @@
     import { db, ref, onValue, push, set, update, get, increment, remove } from './js/firebase.js';
 
     const DEMO_ADMIN_EMAIL = 'support.tradexalpro@gmail.com';
-    const DEMO_ADMIN_PASSWORD = 'Benjamin$2006';
+    const DEMO_ADMIN_PASSWORD = null; // no password configured — login disabled
     const adminAccessOverlay = document.getElementById('adminAccessOverlay');
     const adminContent = document.getElementById('adminContent');
     const adminLoginForm = document.getElementById('adminLoginForm');
@@ -135,7 +133,13 @@
       event.preventDefault();
       const email = document.getElementById('adminEmail').value.trim();
       const password = passwordInput.value;
-      if (email.toLowerCase() === DEMO_ADMIN_EMAIL.toLowerCase() && password === DEMO_ADMIN_PASSWORD) {
+      // Password field is required by the form; no valid password is configured.
+      if (!password) {
+        adminLoginError.textContent = 'Password is required.';
+        adminLoginError.classList.remove('hidden');
+        return;
+      }
+      if (email.toLowerCase() === DEMO_ADMIN_EMAIL.toLowerCase() && DEMO_ADMIN_PASSWORD != null && password === DEMO_ADMIN_PASSWORD) {
         adminAccessOverlay.classList.add('hidden'); adminContent.classList.remove('hidden');
         adminLoginError.classList.add('hidden'); adminLoginError.textContent = '';
       } else {
