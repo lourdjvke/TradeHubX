@@ -123,7 +123,7 @@ function injectWidget() {
           </button>
         </div>
         <p class="text-sm text-gray-700 leading-relaxed mb-4">
-          Welcome to tradexxalpro. 👋 Need assistance with a transaction or have a specific question about your portfolio? We're here to help you navigate the platform. How can we assist you today?
+          Welcome to Tradexalprox. 👋 Need assistance with a transaction or have a specific question about your portfolio? We're here to help you navigate the platform. How can we assist you today?
         </p>
         <button id="txLetsChat" class="w-full py-2.5 bg-[#5b5fcf] text-white rounded-full text-sm font-semibold flex items-center justify-center gap-2 hover:bg-[#4a4ec0] transition">
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
