@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tradexxalpro.com – Modify Admin Access</title>
+  <meta name="robots" content="noindex, nofollow">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-slate-100 text-slate-900 antialiased flex items-center justify-center p-4">
+  <div class="w-full max-w-md">
+    <div class="text-center mb-6">
+      <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">TradeHubX</p>
+      <h1 class="mt-2 text-2xl font-bold">Modify password</h1>
+      <p class="mt-1 text-sm text-slate-500">Confirm your current password to update admin access.</p>
+    </div>
+
+    <!-- Step 1: verify current password -->
+    <div id="verifyCard" class="bg-white rounded-3xl shadow-sm border border-slate-200/80 p-6 space-y-4">
+      <div>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500">Current password</label>
+        <input id="currentPassword" type="password" autocomplete="current-password" placeholder="Enter current password"
+          class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100">
+      </div>
+      <p id="verifyError" class="hidden text-sm text-rose-600"></p>
+      <button id="verifyBtn" type="button" class="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800 transition">
+        Continue
+      </button>
+    </div>
+
+    <!-- Step 2: edit credentials -->
+    <div id="editCard" class="hidden bg-white rounded-3xl shadow-sm border border-slate-200/80 p-6 space-y-4">
+      <p class="text-xs text-slate-500">Verified. Update the credentials stored in the system.</p>
+      <div>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500">Admin email</label>
+        <input id="newEmail" type="email" autocomplete="username" placeholder="admin@example.com"
+          class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100">
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500">New password</label>
+        <input id="newPassword" type="text" autocomplete="new-password" placeholder="New password"
+          class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100">
+      </div>
+      <p id="saveMsg" class="hidden text-sm"></p>
+      <button id="saveBtn" type="button" class="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800 transition">
+        Save changes
+      </button>
+      <button id="backBtn" type="button" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 transition">
+        Lock again
+      </button>
+    </div>
+
+    <p class="mt-6 text-center text-xs text-slate-400">
+      <a href="admin.html" class="text-indigo-500 hover:underline">← Back to admin login</a>
+    </p>
+  </div>
+
+  <script type="module">
+    import { db, ref, onValue, set } from './js/firebase.js';
+
+    let adminCred = { email: '', password: '' };
+
+    onValue(ref(db, 'adminCred'), (snap) => {
+      const v = snap.val() || {};
+      adminCred = {
+        email: String(v.email || '').trim(),
+        password: String(v.password || '')
+      };
+      // Keep fields in sync if already unlocked
+      if (!document.getElementById('editCard').classList.contains('hidden')) {
+        document.getElementById('newEmail').value = adminCred.email;
+        document.getElementById('newPassword').value = adminCred.password;
+      }
+    });
+
+    const verifyCard = document.getElementById('verifyCard');
+    const editCard = document.getElementById('editCard');
+    const verifyError = document.getElementById('verifyError');
+    const saveMsg = document.getElementById('saveMsg');
+
+    document.getElementById('verifyBtn').addEventListener('click', () => {
+      const pw = document.getElementById('currentPassword').value;
+      verifyError.classList.add('hidden');
+      if (!pw) {
+        verifyError.textContent = 'Enter your current password.';
+        verifyError.classList.remove('hidden');
+        return;
+      }
+      if (!adminCred.password) {
+        verifyError.textContent = 'Admin credentials are not configured.';
+        verifyError.classList.remove('hidden');
+        return;
+      }
+      if (pw !== adminCred.password) {
+        verifyError.textContent = 'Incorrect password.';
+        verifyError.classList.remove('hidden');
+        return;
+      }
+      document.getElementById('newEmail').value = adminCred.email;
+      document.getElementById('newPassword').value = adminCred.password;
+      verifyCard.classList.add('hidden');
+      editCard.classList.remove('hidden');
+    });
+
+    document.getElementById('saveBtn').addEventListener('click', async () => {
+      const email = document.getElementById('newEmail').value.trim();
+      const password = document.getElementById('newPassword').value;
+      saveMsg.classList.add('hidden');
+      if (!email || !password) {
+        saveMsg.textContent = 'Email and password are required.';
+        saveMsg.className = 'text-sm text-rose-600';
+        saveMsg.classList.remove('hidden');
+        return;
+      }
+      try {
+        await set(ref(db, 'adminCred'), { email, password });
+        saveMsg.textContent = 'Saved. Admin login will use these credentials.';
+        saveMsg.className = 'text-sm text-emerald-600';
+        saveMsg.classList.remove('hidden');
+      } catch (e) {
+        saveMsg.textContent = 'Could not save. Try again.';
+        saveMsg.className = 'text-sm text-rose-600';
+        saveMsg.classList.remove('hidden');
+      }
+    });
+
+    document.getElementById('backBtn').addEventListener('click', () => {
+      document.getElementById('currentPassword').value = '';
+      saveMsg.classList.add('hidden');
+      editCard.classList.add('hidden');
+      verifyCard.classList.remove('hidden');
+    });
+  </script>
+</body>
+</html>
