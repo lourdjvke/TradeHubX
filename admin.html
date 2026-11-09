@@ -114,14 +114,22 @@
   <script type="module">
     import { db, ref, onValue, push, set, update, get, increment, remove } from './js/firebase.js';
 
-    const DEMO_ADMIN_EMAIL = 'support.tradexalpro@gmail.com';
-    const DEMO_ADMIN_PASSWORD = null; // no password configured — login disabled
     const adminAccessOverlay = document.getElementById('adminAccessOverlay');
     const adminContent = document.getElementById('adminContent');
     const adminLoginForm = document.getElementById('adminLoginForm');
     const adminLoginError = document.getElementById('adminLoginError');
     const passwordInput = document.getElementById('adminPassword');
     const togglePassword = document.getElementById('togglePassword');
+
+    // Live credentials from RTDB path adminCred (edit in Firebase anytime)
+    let adminCred = { email: '', password: '' };
+    onValue(ref(db, 'adminCred'), (snap) => {
+      const v = snap.val() || {};
+      adminCred = {
+        email: String(v.email || '').trim(),
+        password: String(v.password || '')
+      };
+    });
 
     togglePassword.addEventListener('click', () => {
       const showing = passwordInput.type === 'password';
@@ -133,17 +141,24 @@
       event.preventDefault();
       const email = document.getElementById('adminEmail').value.trim();
       const password = passwordInput.value;
-      // Password field is required by the form; no valid password is configured.
       if (!password) {
         adminLoginError.textContent = 'Password is required.';
         adminLoginError.classList.remove('hidden');
         return;
       }
-      if (email.toLowerCase() === DEMO_ADMIN_EMAIL.toLowerCase() && DEMO_ADMIN_PASSWORD != null && password === DEMO_ADMIN_PASSWORD) {
-        adminAccessOverlay.classList.add('hidden'); adminContent.classList.remove('hidden');
-        adminLoginError.classList.add('hidden'); adminLoginError.textContent = '';
+      if (!adminCred.email || adminCred.password === '') {
+        adminLoginError.textContent = 'Admin access is not configured.';
+        adminLoginError.classList.remove('hidden');
+        return;
+      }
+      if (email.toLowerCase() === adminCred.email.toLowerCase() && password === adminCred.password) {
+        adminAccessOverlay.classList.add('hidden');
+        adminContent.classList.remove('hidden');
+        adminLoginError.classList.add('hidden');
+        adminLoginError.textContent = '';
       } else {
-        adminLoginError.textContent = 'Incorrect admin email or password.'; adminLoginError.classList.remove('hidden');
+        adminLoginError.textContent = 'Incorrect admin email or password.';
+        adminLoginError.classList.remove('hidden');
       }
     });
 
