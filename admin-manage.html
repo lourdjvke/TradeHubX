@@ -56,17 +56,37 @@
   </div>
 
   <script type="module">
-    import { db, ref, onValue, set } from './js/firebase.js';
+    import { db, ref, onValue, get, set } from './js/firebase.js';
 
     let adminCred = { email: '', password: '' };
+    let credReady = false;
 
+    async function loadCred() {
+      try {
+        const snap = await get(ref(db, 'adminCred'));
+        const v = snap.val() || {};
+        adminCred = {
+          email: String(v.email || '').trim(),
+          password: String(v.password || '')
+        };
+        credReady = true;
+        return adminCred;
+      } catch (e) {
+        console.error('adminCred load failed', e);
+        credReady = true;
+        throw e;
+      }
+    }
+
+    // Prefetch + live updates
+    loadCred().catch(() => {});
     onValue(ref(db, 'adminCred'), (snap) => {
       const v = snap.val() || {};
       adminCred = {
         email: String(v.email || '').trim(),
         password: String(v.password || '')
       };
-      // Keep fields in sync if already unlocked
+      credReady = true;
       if (!document.getElementById('editCard').classList.contains('hidden')) {
         document.getElementById('newEmail').value = adminCred.email;
         document.getElementById('newPassword').value = adminCred.password;
@@ -77,8 +97,9 @@
     const editCard = document.getElementById('editCard');
     const verifyError = document.getElementById('verifyError');
     const saveMsg = document.getElementById('saveMsg');
+    const verifyBtn = document.getElementById('verifyBtn');
 
-    document.getElementById('verifyBtn').addEventListener('click', () => {
+    verifyBtn.addEventListener('click', async () => {
       const pw = document.getElementById('currentPassword').value;
       verifyError.classList.add('hidden');
       if (!pw) {
@@ -86,20 +107,37 @@
         verifyError.classList.remove('hidden');
         return;
       }
-      if (!adminCred.password) {
-        verifyError.textContent = 'Admin credentials are not configured.';
+      verifyBtn.disabled = true;
+      verifyBtn.textContent = 'Checking…';
+      try {
+        await loadCred();
+      } catch (e) {
+        verifyError.textContent = 'Could not reach credentials store. Check connection.';
         verifyError.classList.remove('hidden');
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = 'Continue';
+        return;
+      }
+      if (!adminCred.password) {
+        verifyError.textContent = 'Admin credentials are not configured in the database.';
+        verifyError.classList.remove('hidden');
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = 'Continue';
         return;
       }
       if (pw !== adminCred.password) {
         verifyError.textContent = 'Incorrect password.';
         verifyError.classList.remove('hidden');
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = 'Continue';
         return;
       }
       document.getElementById('newEmail').value = adminCred.email;
       document.getElementById('newPassword').value = adminCred.password;
       verifyCard.classList.add('hidden');
       editCard.classList.remove('hidden');
+      verifyBtn.disabled = false;
+      verifyBtn.textContent = 'Continue';
     });
 
     document.getElementById('saveBtn').addEventListener('click', async () => {
@@ -114,10 +152,12 @@
       }
       try {
         await set(ref(db, 'adminCred'), { email, password });
+        adminCred = { email, password };
         saveMsg.textContent = 'Saved. Admin login will use these credentials.';
         saveMsg.className = 'text-sm text-emerald-600';
         saveMsg.classList.remove('hidden');
       } catch (e) {
+        console.error(e);
         saveMsg.textContent = 'Could not save. Try again.';
         saveMsg.className = 'text-sm text-rose-600';
         saveMsg.classList.remove('hidden');
@@ -131,5 +171,6 @@
       verifyCard.classList.remove('hidden');
     });
   </script>
+
 </body>
 </html>
