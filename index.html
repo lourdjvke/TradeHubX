@@ -78,7 +78,7 @@ h1{margin:0 auto 14px;max-width:12ch;font-size:42px;line-height:1.02;letter-spac
 <footer class="brand-footer" aria-label="MirrorYield footer"><span class="wordmark" aria-hidden="true">MIRRORYIELD&nbsp;&nbsp; MIRRORYIELD&nbsp;&nbsp; MIRRORYIELD</span><div class="footnote">© MirrorYield. All rights reserved.</div></footer>
 </div>
 <div class="toast" id="toast"><div class="thumb"></div><div><b>MirrorYield + TradingView</b><span>Learn more ›</span></div><button class="x" id="toastx" aria-label="Dismiss">×</button></div>
-<button class="fab" aria-label="Chat">💬</button>
+<button style="display: none !important;" class="fab" aria-label="Chat">💬</button>
 <script>
 const plans=[["10","$10,000","€89"],["25","$25,000","€250"],["50","$50,000","€345"],["100","$100,000","€439"],["200","$200,000","€1,080"]];
 function planCard([,amount,fee]){return `<article class="plan"><div class="lbl">Account</div><div class="amt">${amount}</div><button class="start" type="button">Start now</button><div class="fee">One-time refundable fee from<b>${fee}</b></div><div class="spec"><span>Profit Target</span><span>PHASE 1 10%<br>PHASE 2 5%</span></div><div class="spec"><span>Max Daily Loss</span><span>5%</span></div><div class="spec"><span>Max Loss</span><span>10%</span></div><div class="spec"><span>Min Trading days</span><span>4 days</span></div><div class="spec"><span>Trading Period</span><span>Unlimited</span></div><div class="spec"><span>Refund</span><span>Yes <i class="pillg">100%</i></span></div><div class="spec"><span>Rewards</span><span>Up to 90%</span></div></article>`}
