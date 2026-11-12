@@ -94,5 +94,8 @@ document.getElementById("toastx").addEventListener("click",()=>document.getEleme
 const langs=["Spanish","French","German","Italian","Czech","Arabic","Portuguese","Polish","Korean","Swedish","Romanian","English"];const chips=langs.map(language=>`<span class="lang-chip">${language}</span>`).join("");document.getElementById("langs").innerHTML=chips+chips;
 if("IntersectionObserver"in window){const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add("visible");observer.unobserve(entry.target);}}),{threshold:.12});document.querySelectorAll(".reveal").forEach(element=>observer.observe(element));}else{document.querySelectorAll(".reveal").forEach(element=>element.classList.add("visible"));}
 </script>
+  <script>
+var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();(function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];s1.async=true;s1.src="https://embed.tawk.to/6af118526a30e43c45fbb74c/1k6use1mr";s1.charset="UTF-8";s1.setAttribute("crossorigin","*");s0.parentNode.insertBefore(s1,s0);})();
+  </script>
 </body>
 </html>
