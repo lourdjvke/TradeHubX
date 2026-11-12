@@ -3,75 +3,135 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Forgot your password</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#101114">
+<title>MirrorYield — Reset password</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; min-height: 100vh; background: #2a2a2a; color: #fff;
-    font-family: Inter, system-ui, sans-serif;
-  }
-  .lang {
-    position: absolute; top: 18px; left: 16px;
-    display: flex; align-items: center; gap: 8px;
-    background: #1c1c1c; border-radius: 10px; padding: 8px 12px;
-    font-weight: 700; font-size: 14px;
-  }
-  .wrap { max-width: 440px; margin: 0 auto; padding: 92px 22px 40px; text-align: center; }
-  .brand { display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 800; font-size: 28px; letter-spacing: -.03em; }
-  .brand img { height: 42px; }
-  h1 { font-size: 26px; font-weight: 700; margin: 36px 0 28px; letter-spacing: -.02em; }
-  form { text-align: left; }
-  label { display: block; font-size: 16px; margin-bottom: 8px; }
-  input {
-    width: 100%; height: 52px; border-radius: 10px; border: 2px solid transparent;
-    background: #1a1a1a; color: #fff; padding: 0 14px; font-size: 16px; outline: none;
-  }
-  input:focus { border-color: #2f7dff; }
-  button {
-    width: 100%; height: 52px; margin-top: 14px; border: 0; border-radius: 8px;
-    background: #1a73ff; color: #fff; font-size: 18px; font-weight: 700; cursor: pointer;
-  }
-  .msg { min-height: 20px; margin-top: 10px; font-size: 14px; text-align: center; }
-  .or { display: flex; align-items: center; gap: 12px; color: #bdbdbd; margin: 26px 0 18px; font-size: 14px; }
-  .or:before, .or:after { content: ""; height: 1px; background: #4a4a4a; flex: 1; }
-  .back { color: #fff; font-weight: 700; text-decoration: underline; }
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 0,#202b43,#111216 55%);color:#fff;font-family:Inter,system-ui,sans-serif}
+.lang-wrap{position:absolute;top:18px;left:16px;z-index:5}
+.lang-button{display:flex;align-items:center;gap:9px;background:#202127;color:#fff;border:1px solid #363943;border-radius:12px;padding:10px 13px;font-weight:700;cursor:pointer}
+.lang-menu{display:none;position:absolute;top:calc(100% + 8px);left:0;min-width:170px;max-height:260px;overflow:auto;background:#202127;border:1px solid #363943;border-radius:12px;padding:6px;box-shadow:0 14px 35px #0008}
+.lang-menu.open{display:grid}
+.lang-menu button{background:transparent;border:0;color:#eee;text-align:left;padding:10px;border-radius:8px;cursor:pointer}
+.lang-menu button:hover,.lang-menu button[aria-selected=true]{background:#343947}
+.wrap{width:min(440px,100%);margin:0 auto;padding:100px 22px 40px;text-align:center}
+.brand{display:flex;align-items:center;justify-content:center;gap:10px;font-weight:800;font-size:28px;letter-spacing:-.04em}
+.brand-mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#68a6ff,#2465df);display:grid;place-items:center;font-size:22px}
+h1{font-size:27px;margin:36px 0 10px;letter-spacing:-.03em}
+.intro{color:#aeb5c4;font-size:14px;line-height:1.6;margin:0 0 28px}
+form{text-align:left}
+label{display:block;font-size:13px;font-weight:600;margin-bottom:8px;color:#d9deea}
+input{width:100%;height:52px;border-radius:11px;border:1px solid #343943;background:#191b21;color:#fff;padding:0 14px;font-size:16px;outline:none}
+input:focus{border-color:#438aff;box-shadow:0 0 0 3px #438aff25}
+.submit{width:100%;height:52px;margin-top:14px;border:0;border-radius:11px;background:#2878f5;color:#fff;font-size:16px;font-weight:800;cursor:pointer;transition:filter .2s,transform .2s}
+.submit:hover{filter:brightness(1.1)}.submit:active{transform:scale(.99)}.submit:disabled{opacity:.65;cursor:wait}
+.msg{min-height:22px;margin:12px 0 0;font-size:13px;line-height:1.5;text-align:center}
+.or{display:flex;align-items:center;gap:12px;color:#858b98;margin:27px 0 18px;font-size:13px}
+.or:before,.or:after{content:"";height:1px;background:#343943;flex:1}
+.back{color:#fff;font-weight:700;text-decoration:none}.back:hover{text-decoration:underline}
 </style>
 </head>
 <body>
-  <div class="lang">🇬🇧 EN ▾</div>
-  <div class="wrap">
-    <div class="brand">
-      <img src="https://login.tradexxalpro.com/logo.png" alt="" onerror="this.style.display='none'">
-      Tradexal Pro
-    </div>
-    <h1>Forgot Your Password?</h1>
-    <form id="form">
-      <label for="email">Email</label>
-      <input id="email" type="email" placeholder="Email" required autocomplete="email">
-      <button type="submit">Submit</button>
-      <p class="msg" id="msg"></p>
-    </form>
-    <div class="or">or</div>
-    <a class="back" href="auth.html">« Back to Login</a>
+<div class="lang-wrap">
+  <button class="lang-button" id="languageButton" type="button" aria-expanded="false" aria-haspopup="listbox">
+    <span id="languageFlag">🇬🇧</span><span id="languageLabel">English</span><span aria-hidden="true">▾</span>
+  </button>
+  <div class="lang-menu" id="languageMenu" role="listbox" aria-label="Choose language">
+    <button type="button" role="option" data-code="en" data-flag="🇬🇧" aria-selected="true">English</button>
+    <button type="button" role="option" data-code="fr" data-flag="🇫🇷">Français</button>
+    <button type="button" role="option" data-code="es" data-flag="🇪🇸">Español</button>
+    <button type="button" role="option" data-code="de" data-flag="🇩🇪">Deutsch</button>
+    <button type="button" role="option" data-code="pt" data-flag="🇵🇹">Português</button>
+    <button type="button" role="option" data-code="it" data-flag="🇮🇹">Italiano</button>
   </div>
-  <script type="module">
-    import { sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-    import { auth } from "./js/firebase.js";
-    const msg = document.getElementById("msg");
-    document.getElementById("form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      msg.textContent = "";
-      msg.style.color = "#d4d4d8";
-      try {
-        await sendPasswordResetEmail(auth, document.getElementById("email").value.trim());
-        msg.style.color = "#86efac";
-        msg.textContent = "Check your email for a reset link.";
-      } catch (err) {
-        msg.style.color = "#fca5a5";
-        msg.textContent = "Could not send a reset email. Check the address and try again.";
-      }
-    });
-  </script>
+</div>
+<main class="wrap">
+  <div class="brand"><span class="brand-mark" aria-hidden="true">M</span><span>MirrorYield</span></div>
+  <h1 id="heading">Forgot your password?</h1>
+  <p class="intro" id="intro">Enter the email address associated with your account. We’ll send you a link to reset your password.</p>
+  <form id="form">
+    <label for="email" id="emailLabel">Email address</label>
+    <input id="email" type="email" placeholder="name@example.com" required autocomplete="email">
+    <button class="submit" id="submitButton" type="submit">Send reset link</button>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+  </form>
+  <div class="or">or</div>
+  <a class="back" href="auth.html" id="backLink">← Back to login</a>
+</main>
+<script type="module">
+import { sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+import { auth } from "./js/firebase.js";
+
+const msg = document.getElementById("msg");
+const form = document.getElementById("form");
+const submit = document.getElementById("submitButton");
+const languageButton = document.getElementById("languageButton");
+const languageMenu = document.getElementById("languageMenu");
+
+const copy = {
+  en:{heading:"Forgot your password?",intro:"Enter the email address associated with your account. We’ll send you a link to reset your password.",email:"Email address",placeholder:"name@example.com",submit:"Send reset link",back:"← Back to login",success:"Check your email for a password reset link.",error:"Could not send a reset email. Check the address and try again."},
+  fr:{heading:"Mot de passe oublié ?",intro:"Saisissez l’adresse e-mail associée à votre compte. Nous vous enverrons un lien de réinitialisation.",email:"Adresse e-mail",placeholder:"nom@exemple.com",submit:"Envoyer le lien",back:"← Retour à la connexion",success:"Consultez votre boîte mail pour le lien de réinitialisation.",error:"Impossible d’envoyer l’e-mail. Vérifiez l’adresse et réessayez."},
+  es:{heading:"¿Olvidaste tu contraseña?",intro:"Introduce el correo electrónico asociado a tu cuenta. Te enviaremos un enlace para restablecerla.",email:"Correo electrónico",placeholder:"nombre@ejemplo.com",submit:"Enviar enlace",back:"← Volver al inicio de sesión",success:"Revisa tu correo para encontrar el enlace de restablecimiento.",error:"No se pudo enviar el correo. Comprueba la dirección e inténtalo de nuevo."},
+  de:{heading:"Passwort vergessen?",intro:"Gib die E-Mail-Adresse deines Kontos ein. Wir senden dir einen Link zum Zurücksetzen deines Passworts.",email:"E-Mail-Adresse",placeholder:"name@beispiel.de",submit:"Link senden",back:"← Zurück zur Anmeldung",success:"Du erhältst eine E-Mail mit dem Link zum Zurücksetzen.",error:"Die E-Mail konnte nicht gesendet werden. Prüfe die Adresse und versuche es erneut."},
+  pt:{heading:"Esqueceu a palavra-passe?",intro:"Introduza o endereço de e-mail associado à sua conta. Enviaremos um link para redefinir a palavra-passe.",email:"Endereço de e-mail",placeholder:"nome@exemplo.com",submit:"Enviar link",back:"← Voltar ao início de sessão",success:"Verifique o seu e-mail para encontrar o link de redefinição.",error:"Não foi possível enviar o e-mail. Verifique o endereço e tente novamente."},
+  it:{heading:"Password dimenticata?",intro:"Inserisci l’indirizzo email associato al tuo account. Ti invieremo un link per reimpostare la password.",email:"Indirizzo email",placeholder:"nome@esempio.it",submit:"Invia link",back:"← Torna all’accesso",success:"Controlla la tua email per il link di reimpostazione.",error:"Impossibile inviare l’email. Controlla l’indirizzo e riprova."}
+};
+function setLanguage(code, flag, label) {
+  const t = copy[code] || copy.en;
+  document.documentElement.lang = code;
+  document.getElementById("languageFlag").textContent = flag;
+  document.getElementById("languageLabel").textContent = label;
+  document.getElementById("heading").textContent = t.heading;
+  document.getElementById("intro").textContent = t.intro;
+  document.getElementById("emailLabel").textContent = t.email;
+  document.getElementById("email").placeholder = t.placeholder;
+  submit.textContent = t.submit;
+  document.getElementById("backLink").textContent = t.back;
+  languageMenu.querySelectorAll("[role=option]").forEach(option => option.setAttribute("aria-selected", String(option.dataset.code === code)));
+  languageMenu.classList.remove("open");
+  languageButton.setAttribute("aria-expanded","false");
+  msg.textContent = "";
+}
+languageButton.addEventListener("click", () => {
+  const open = languageMenu.classList.toggle("open");
+  languageButton.setAttribute("aria-expanded", String(open));
+});
+languageMenu.addEventListener("click", event => {
+  const option = event.target.closest("[data-code]");
+  if (!option) return;
+  setLanguage(option.dataset.code, option.dataset.flag, option.textContent.trim());
+});
+document.addEventListener("click", event => {
+  if (!event.target.closest(".lang-wrap")) {
+    languageMenu.classList.remove("open");
+    languageButton.setAttribute("aria-expanded","false");
+  }
+});
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") {
+    languageMenu.classList.remove("open");
+    languageButton.setAttribute("aria-expanded","false");
+  }
+});
+form.addEventListener("submit", async event => {
+  event.preventDefault();
+  msg.textContent = "";
+  const code = document.documentElement.lang || "en";
+  submit.disabled = true;
+  submit.textContent = "Sending…";
+  try {
+    await sendPasswordResetEmail(auth, document.getElementById("email").value.trim());
+    msg.style.color = "#86efac";
+    msg.textContent = (copy[code] || copy.en).success;
+  } catch (error) {
+    msg.style.color = "#fca5a5";
+    msg.textContent = (copy[code] || copy.en).error;
+  } finally {
+    submit.disabled = false;
+    submit.textContent = (copy[code] || copy.en).submit;
+  }
+});
+</script>
 </body>
 </html>
