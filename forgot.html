@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forgot your password</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: #2a2a2a; color: #fff;
+    font-family: Inter, system-ui, sans-serif;
+  }
+  .lang {
+    position: absolute; top: 18px; left: 16px;
+    display: flex; align-items: center; gap: 8px;
+    background: #1c1c1c; border-radius: 10px; padding: 8px 12px;
+    font-weight: 700; font-size: 14px;
+  }
+  .wrap { max-width: 440px; margin: 0 auto; padding: 92px 22px 40px; text-align: center; }
+  .brand { display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 800; font-size: 28px; letter-spacing: -.03em; }
+  .brand img { height: 42px; }
+  h1 { font-size: 26px; font-weight: 700; margin: 36px 0 28px; letter-spacing: -.02em; }
+  form { text-align: left; }
+  label { display: block; font-size: 16px; margin-bottom: 8px; }
+  input {
+    width: 100%; height: 52px; border-radius: 10px; border: 2px solid transparent;
+    background: #1a1a1a; color: #fff; padding: 0 14px; font-size: 16px; outline: none;
+  }
+  input:focus { border-color: #2f7dff; }
+  button {
+    width: 100%; height: 52px; margin-top: 14px; border: 0; border-radius: 8px;
+    background: #1a73ff; color: #fff; font-size: 18px; font-weight: 700; cursor: pointer;
+  }
+  .msg { min-height: 20px; margin-top: 10px; font-size: 14px; text-align: center; }
+  .or { display: flex; align-items: center; gap: 12px; color: #bdbdbd; margin: 26px 0 18px; font-size: 14px; }
+  .or:before, .or:after { content: ""; height: 1px; background: #4a4a4a; flex: 1; }
+  .back { color: #fff; font-weight: 700; text-decoration: underline; }
+</style>
+</head>
+<body>
+  <div class="lang">🇬🇧 EN ▾</div>
+  <div class="wrap">
+    <div class="brand">
+      <img src="https://login.tradexxalpro.com/logo.png" alt="" onerror="this.style.display='none'">
+      Tradexal Pro
+    </div>
+    <h1>Forgot Your Password?</h1>
+    <form id="form">
+      <label for="email">Email</label>
+      <input id="email" type="email" placeholder="Email" required autocomplete="email">
+      <button type="submit">Submit</button>
+      <p class="msg" id="msg"></p>
+    </form>
+    <div class="or">or</div>
+    <a class="back" href="auth.html">« Back to Login</a>
+  </div>
+  <script type="module">
+    import { sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+    import { auth } from "./js/firebase.js";
+    const msg = document.getElementById("msg");
+    document.getElementById("form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      msg.textContent = "";
+      msg.style.color = "#d4d4d8";
+      try {
+        await sendPasswordResetEmail(auth, document.getElementById("email").value.trim());
+        msg.style.color = "#86efac";
+        msg.textContent = "Check your email for a reset link.";
+      } catch (err) {
+        msg.style.color = "#fca5a5";
+        msg.textContent = "Could not send a reset email. Check the address and try again.";
+      }
+    });
+  </script>
+</body>
+</html>
