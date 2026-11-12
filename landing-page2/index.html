@@ -1,540 +1,770 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Modern Prop Trading Firm | FTMO</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            ftmo: {
-              bg: '#0a0a0c',
-              card: '#12121a',
-              card2: '#16161f',
-              border: '#2a2a35',
-              blue: '#2f6bff',
-              blue2: '#1a5cff',
-              muted: '#9ca3af',
-              green: '#22c55e',
-              orange: '#f59e0b',
-            }
-          }
-        }
-      }
-    }
-  </script>
-  <style>
-    body { background: #0a0a0c; color: #f3f4f6; font-family: Inter, system-ui, -apple-system, sans-serif; }
-    .glass { background: rgba(18,18,26,.85); backdrop-filter: blur(12px); }
-    .card { background: #12121a; border: 1px solid #2a2a35; border-radius: 1.25rem; }
-    .pill { border-radius: 9999px; }
-    .btn-blue { background: linear-gradient(180deg, #3b82f6, #2563eb); }
-    .btn-outline { border: 1px solid #3f3f4a; background: transparent; }
-    .fade-up { animation: fadeUp .5s ease both; }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-    .cookie-overlay { background: rgba(0,0,0,.72); backdrop-filter: blur(6px); }
-    details summary { list-style: none; cursor: pointer; }
-    details summary::-webkit-details-marker { display: none; }
-    .hide-scroll::-webkit-scrollbar { display: none; }
-  </style>
-</head>
-<body class="min-h-screen pb-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Modern Prop Trading Firm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #07080c;
+    --card: #12141c;
+    --card-2: #181b26;
+    --line: rgba(255,255,255,.08);
+    --line-2: rgba(255,255,255,.14);
+    --text: #f5f7fb;
+    --muted: #9aa1b5;
+    --blue: #2f7bff;
+    --blue-2: #1d5fe0;
+    --green: #3dd68c;
+    --radius: 22px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  a { color: inherit; text-decoration: none; }
+  button, input { font-family: inherit; }
+  img { max-width: 100%; display: block; }
+  .wrap { width: min(1120px, calc(100% - 32px)); margin: 0 auto; }
+  .muted { color: var(--muted); }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    height: 48px; padding: 0 18px; border-radius: 14px; border: 0;
+    font-weight: 700; font-size: 14px; cursor: pointer;
+  }
+  .btn-blue { background: linear-gradient(180deg, #3b86ff, #2463f0); color: #fff; box-shadow: 0 8px 24px rgba(47,123,255,.28); }
+  .btn-ghost { background: transparent; color: #fff; border: 1px solid var(--line-2); }
+  .btn-white { background: #fff; color: #0b0c10; }
+  .btn-block { width: 100%; }
 
-  <!-- Cookie banner -->
-  <div id="cookieBanner" class="fixed inset-0 z-[100] cookie-overlay flex items-end sm:items-center justify-center p-4">
-    <div class="w-full max-w-md card p-6 text-center shadow-2xl">
-      <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-white/10 flex items-center justify-center text-2xl">🍪</div>
-      <h3 class="text-lg font-bold mb-2">Cookies acceptance</h3>
-      <p class="text-sm text-ftmo-muted mb-4">
-        For a better user experience, please accept essential, analytical and marketing cookies to collect data for personalised content and advertising.
-        <a href="#" class="text-blue-400 underline">Read more</a>
-      </p>
-      <button onclick="acceptCookies()" class="w-full py-3 rounded-xl btn-blue font-semibold mb-2">Accept All</button>
-      <button onclick="acceptCookies()" class="w-full py-3 rounded-xl btn-outline text-sm text-ftmo-muted">Preferences</button>
+  /* cookie */
+  .cookie {
+    position: fixed; inset: 0; z-index: 80;
+    background: rgba(0,0,0,.62);
+    display: grid; place-items: center; padding: 20px;
+  }
+  .cookie.hidden { display: none; }
+  .cookie-card {
+    width: min(420px, 100%);
+    background: #14161e;
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    padding: 28px 22px 18px;
+    text-align: center;
+    box-shadow: 0 30px 80px rgba(0,0,0,.55);
+  }
+  .ghost {
+    width: 72px; height: 72px; margin: 0 auto 12px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 40%, #2a3350, #12141c 70%);
+    display: grid; place-items: center;
+    box-shadow: 0 0 0 8px rgba(47,123,255,.08);
+  }
+  .cookie-card h3 { margin: 0 0 8px; font-size: 22px; letter-spacing: -.03em; }
+  .cookie-card p { margin: 0 0 18px; color: var(--muted); font-size: 13.5px; }
+  .cookie-card .link { color: #7eb0ff; }
+
+  /* header */
+  header {
+    position: sticky; top: 0; z-index: 40;
+    backdrop-filter: blur(16px);
+    background: rgba(7,8,12,.72);
+    border-bottom: 1px solid transparent;
+  }
+  .bar { height: 64px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { display: flex; align-items: center; gap: 8px; font-weight: 800; letter-spacing: -.04em; font-size: 20px; }
+  .mark {
+    width: 22px; height: 22px; border-radius: 6px;
+    background: conic-gradient(from 210deg, #fff, #9ec0ff, #fff);
+    clip-path: polygon(50% 0, 100% 38%, 82% 100%, 18% 100%, 0 38%);
+  }
+  nav { display: none; gap: 22px; color: #c9ceda; font-size: 14px; font-weight: 500; }
+  .nav-actions { display: flex; align-items: center; gap: 8px; }
+  .icon-btn { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line); background: transparent; color: #fff; }
+  .drawer {
+    display: none; border-top: 1px solid var(--line); padding: 12px 16px 16px;
+    background: #0c0e14;
+  }
+  .drawer.open { display: grid; gap: 10px; }
+  @media (min-width: 900px) {
+    nav { display: flex; }
+    .icon-btn { display: none; }
+  }
+
+  /* hero */
+  .hero {
+    position: relative;
+    padding: 28px 0 8px;
+    overflow: hidden;
+  }
+  .hero:before {
+    content: "";
+    position: absolute; inset: -80px 10% auto;
+    height: 420px;
+    background:
+      radial-gradient(closest-side, rgba(47,123,255,.35), transparent 70%),
+      radial-gradient(closest-side at 80% 40%, rgba(120,60,255,.25), transparent 70%);
+    filter: blur(8px);
+    pointer-events: none;
+  }
+  .hero-copy { position: relative; text-align: center; padding: 18px 0 8px; }
+  .kicker { color: #7eb0ff; font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+  .hero h1 {
+    margin: 10px auto 12px;
+    max-width: 16ch;
+    font-size: clamp(40px, 6vw, 76px);
+    line-height: .95;
+    letter-spacing: -.045em;
+    font-weight: 800;
+  }
+  .hero h1 span {
+    background: linear-gradient(90deg, #fff, #9eb6ff 40%, #fff 80%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .lede { max-width: 560px; margin: 0 auto 18px; color: var(--muted); }
+
+  .instant {
+    position: relative;
+    margin: 22px auto 0;
+    width: min(560px, 100%);
+    background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    padding: 22px;
+    text-align: left;
+    box-shadow: 0 20px 60px rgba(0,0,0,.35);
+  }
+  .instant h2 { margin: 0 0 8px; font-size: 26px; letter-spacing: -.03em; }
+  .instant p { margin: 0 0 16px; color: var(--muted); font-size: 14px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .row .btn { flex: 1; min-width: 140px; }
+
+  .truststrip {
+    margin: 28px auto 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .truststrip div {
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 12px 14px;
+    background: rgba(255,255,255,.02);
+    font-size: 13px;
+  }
+  .truststrip strong { display: block; font-size: 13px; }
+  .truststrip span { color: var(--muted); font-size: 12px; }
+  @media (min-width: 800px) {
+    .truststrip { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  section { padding: 64px 0; }
+  h2.sec {
+    margin: 0 0 8px;
+    text-align: center;
+    font-size: clamp(28px, 4vw, 44px);
+    letter-spacing: -.04em;
+    line-height: 1.05;
+  }
+  .sub { text-align: center; color: var(--muted); margin: 0 auto 28px; max-width: 560px; }
+
+  .banner {
+    height: 220px;
+    border-radius: 24px;
+    border: 1px solid var(--line);
+    margin-bottom: 14px;
+    position: relative;
+    overflow: hidden;
+    background:
+      linear-gradient(100deg, rgba(8,16,40,.2), rgba(0,0,0,.45)),
+      radial-gradient(circle at 20% 40%, #1d4ed8, transparent 40%),
+      radial-gradient(circle at 70% 50%, #7f1d1d, transparent 42%),
+      #0c1224;
+  }
+  .banner .cap {
+    position: absolute; left: 20px; bottom: 18px;
+  }
+  .banner h3 { margin: 0; font-size: 28px; letter-spacing: -.03em; }
+  .orbs { position: absolute; inset: 0; }
+  .orbs i {
+    position: absolute; border-radius: 50%; filter: blur(0px);
+    background: linear-gradient(180deg, #60a5fa, #1e3a8a);
+    opacity: .9;
+  }
+  .orbs i:nth-child(1) { width: 90px; height: 140px; left: 18%; top: 30px; border-radius: 40px; transform: rotate(8deg); }
+  .orbs i:nth-child(2) { width: 90px; height: 140px; left: 34%; top: 20px; background: linear-gradient(180deg, #fb7185, #7f1d1d); border-radius: 40px; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .feature, .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+  }
+  .feature { padding: 16px; min-height: 132px; }
+  .feature .ic {
+    width: 36px; height: 36px; border-radius: 12px;
+    display: grid; place-items: center;
+    background: rgba(47,123,255,.12); color: #8eb6ff; margin-bottom: 10px;
+    font-weight: 800;
+  }
+  .feature h3 { margin: 0 0 4px; font-size: 15px; }
+  .feature p { margin: 0; color: var(--muted); font-size: 13px; }
+  @media (min-width: 800px) {
+    .banner { height: 320px; }
+    .grid-2.features { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  /* pricing */
+  .pills { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .pill {
+    height: 38px; padding: 0 14px; border-radius: 999px;
+    border: 1px solid var(--line-2); background: transparent; color: #d5d8e2;
+    font-weight: 600; font-size: 13px; cursor: pointer;
+  }
+  .pill.on { background: #fff; color: #0b0c10; border-color: #fff; }
+  .pill .new { color: #3dd68c; font-size: 11px; margin-right: 4px; }
+  .pill.on .new { color: #059669; }
+  .tools { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin: 8px 0 14px; flex-wrap: wrap; }
+  .sizes { display: flex; gap: 8px; overflow: auto; padding-bottom: 4px; }
+  .sizes::-webkit-scrollbar { display: none; }
+  .price-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  @media (min-width: 800px) { .price-grid { grid-template-columns: 1fr 1fr; } }
+  .price {
+    background: linear-gradient(180deg, #161925, #10131b);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 18px;
+    position: relative;
+  }
+  .price.best { box-shadow: inset 0 0 0 1px rgba(251,146,60,.45); }
+  .badge {
+    position: absolute; top: 14px; right: 14px;
+    background: #f59e0b; color: #1a1203; font-size: 11px; font-weight: 800;
+    border-radius: 999px; padding: 4px 8px;
+  }
+  .price .lbl { color: var(--muted); font-size: 12px; }
+  .price .amt { font-size: 34px; font-weight: 800; letter-spacing: -.04em; margin: 2px 0 6px; }
+  .fee { color: var(--muted); font-size: 13px; margin-bottom: 14px; }
+  .fee b { color: #fff; }
+  .specs { display: grid; gap: 8px; margin: 0 0 14px; }
+  .specs div { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,.04); padding-bottom: 8px; }
+  .specs dt { color: var(--muted); }
+  .specs dd { margin: 0; font-weight: 600; }
+  .ok { color: var(--green); }
+  .avg { text-align: center; color: var(--muted); font-size: 12px; margin: 10px 0 0; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; }
+  .chip { border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px; font-size: 12px; color: #d5d8e2; }
+
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; text-align: center; }
+  .stats b { display: block; font-size: clamp(22px, 3vw, 32px); letter-spacing: -.03em; }
+  .stats span { color: var(--muted); font-size: 12px; }
+  .stories { display: grid; grid-auto-flow: column; grid-auto-columns: 78%; gap: 12px; overflow: auto; padding-bottom: 6px; }
+  .stories::-webkit-scrollbar { display: none; }
+  @media (min-width: 900px) {
+    .stories { grid-auto-flow: unset; grid-template-columns: repeat(3, 1fr); overflow: visible; }
+  }
+  .story { overflow: hidden; }
+  .shot {
+    height: 150px; border-radius: 16px; margin-bottom: 10px;
+    background:
+      linear-gradient(180deg, transparent, rgba(0,0,0,.45)),
+      linear-gradient(135deg, #1e293b, #0f172a 60%, #334155);
+    display: grid; place-items: center;
+  }
+  .play {
+    width: 42px; height: 42px; border-radius: 50%; background: #fff; color: #111;
+    display: grid; place-items: center; font-size: 14px;
+  }
+  .story { padding: 12px; }
+  .meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; margin-top: 8px; }
+
+  .steps { display: grid; gap: 12px; }
+  @media (min-width: 900px) { .steps { grid-template-columns: repeat(3, 1fr); } }
+  .step { border-radius: 24px; padding: 18px; min-height: 240px; border: 1px solid transparent; position: relative; overflow: hidden; }
+  .step.blue { background: linear-gradient(180deg, #1d4ed8, #0b1d4d); }
+  .step.green { background: linear-gradient(180deg, #059669, #064e3b); }
+  .step.orange { background: linear-gradient(180deg, #f59e0b, #9a3412); }
+  .step .tag { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; opacity: .85; }
+  .step h3 { margin: 8px 0; font-size: 26px; letter-spacing: -.03em; line-height: 1.05; }
+  .step p { margin: 0; font-size: 14px; color: rgba(255,255,255,.86); }
+  .mock {
+    margin-top: 16px; height: 72px; border-radius: 14px;
+    background: rgba(0,0,0,.28); border: 1px solid rgba(255,255,255,.12);
+  }
+  .centers { display: flex; justify-content: center; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+
+  .plats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (min-width: 800px) { .plats { grid-template-columns: repeat(4, 1fr); } }
+  .plat { padding: 22px 12px; text-align: center; font-weight: 700; }
+
+  .split { display: grid; gap: 12px; }
+  @media (min-width: 900px) { .split { grid-template-columns: 1.1fr .9fr; align-items: center; } }
+  .academy-visual {
+    height: 240px; border-radius: 24px;
+    background:
+      radial-gradient(circle at 50% 40%, rgba(47,123,255,.35), transparent 55%),
+      linear-gradient(180deg, #121826, #0b0d12);
+    border: 1px solid var(--line);
+  }
+  .checks { margin: 0 0 16px; padding: 0; list-style: none; color: var(--muted); }
+  .checks li { margin: 6px 0; }
+  .checks li:before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #3b82f6; margin-right: 8px; }
+
+  .three { display: grid; gap: 12px; margin-top: 12px; }
+  @media (min-width: 900px) { .three { grid-template-columns: repeat(3, 1fr); } }
+  .mini { padding: 16px; }
+  .swatch { height: 92px; border-radius: 14px; margin-bottom: 12px; }
+  .s1 { background: linear-gradient(135deg, #312e81, #2563eb); }
+  .s2 { background: linear-gradient(135deg, #1e3a8a, #0ea5e9); }
+  .s3 { background: linear-gradient(135deg, #b91c1c, #111827); }
+
+  .people {
+    border-radius: 28px; overflow: hidden; border: 1px solid var(--line);
+    background:
+      linear-gradient(180deg, rgba(29,78,216,.55), rgba(7,8,12,.88)),
+      repeating-linear-gradient(90deg, #1e293b 0 12px, #0f172a 12px 24px);
+    padding: 28px 20px;
+  }
+  .people h2 { margin: 0 0 8px; font-size: 36px; letter-spacing: -.04em; }
+  .people p { max-width: 460px; color: rgba(255,255,255,.82); }
+  .nums { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
+  .nums div { background: rgba(0,0,0,.35); border: 1px solid var(--line); border-radius: 16px; padding: 12px; text-align: center; }
+  .nums b { font-size: 22px; }
+
+  .support-grid { display: grid; gap: 12px; }
+  @media (min-width: 800px) { .support-grid { grid-template-columns: 1fr 1fr; align-items: center; } }
+  .langs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .langs span { font-size: 12px; border: 1px solid var(--line); border-radius: 999px; padding: 4px 8px; color: var(--muted); }
+  .big2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .big2 div { padding: 18px; text-align: center; }
+  .big2 b { font-size: 36px; display: block; }
+
+  .faqs { display: grid; gap: 8px; }
+  @media (min-width: 800px) { .faqs { grid-template-columns: 1fr 1fr; } }
+  details.card { padding: 0 14px; }
+  details summary { padding: 14px 0; font-weight: 600; cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+  details summary::-webkit-details-marker { display: none; }
+  details p { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
+
+  .cta {
+    border-radius: 28px;
+    padding: 28px 20px;
+    background: linear-gradient(180deg, #1d4ed8, #0b1b4a);
+    display: grid; gap: 16px;
+  }
+  @media (min-width: 800px) { .cta { grid-template-columns: 1fr 1fr; align-items: center; padding: 36px; } }
+  .cta h2 { margin: 0 0 8px; font-size: 34px; letter-spacing: -.04em; }
+  .cta ul { margin: 0 0 16px; padding-left: 18px; }
+  .screen {
+    height: 180px; border-radius: 16px;
+    background:
+      linear-gradient(#0f172a, #0f172a) padding-box,
+      linear-gradient(180deg, #334155, #020617);
+    border: 8px solid #0b1220;
+    position: relative; overflow: hidden;
+  }
+  .screen:before {
+    content: "";
+    position: absolute; left: 10%; right: 10%; bottom: 16px; height: 70px;
+    background: linear-gradient(90deg, transparent, #22c55e 20%, #22c55e 30%, transparent 30%, transparent 40%, #4ade80 55%, transparent 70%);
+    clip-path: polygon(0 80%, 15% 60%, 28% 70%, 40% 30%, 55% 50%, 70% 20%, 100% 40%, 100% 100%, 0 100%);
+  }
+
+  footer { border-top: 1px solid var(--line); padding: 36px 0 48px; color: var(--muted); font-size: 13px; }
+  .foot { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (min-width: 800px) { .foot { grid-template-columns: 1.2fr repeat(4, 1fr); } }
+  footer h4 { margin: 0 0 8px; color: #fff; font-size: 13px; }
+  footer ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .fine { margin-top: 22px; font-size: 11px; max-width: 720px; }
+</style>
+</head>
+<body>
+  <div class="cookie" id="cookie">
+    <div class="cookie-card">
+      <div class="ghost" aria-hidden="true">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+          <path d="M18 4c-7 0-12 5-12 12v12c1.2-1 2.4-1 3.4 0 1 1 2.2 1 3.2 0 1-1 2.2-1 3.2 0 1 1 2.2 1 3.2 0 1-1 2.2-1 3.2 0 1 1 2.2 1 3.2 0 1-1 2.2-1 3.4 0V16c0-7-5-12-12-12z" fill="#e8eefc"/>
+          <circle cx="13" cy="16" r="1.6" fill="#12141c"/>
+          <circle cx="23" cy="16" r="1.6" fill="#12141c"/>
+        </svg>
+      </div>
+      <h3>Cookies acceptance</h3>
+      <p>For a better experience, accept essential, analytical and marketing cookies used for personalised content. <a class="link" href="#faq">Read more</a></p>
+      <button class="btn btn-blue btn-block" id="accept">Accept All</button>
+      <button class="btn btn-ghost btn-block" id="prefs" style="margin-top:8px;border:0;color:#9aa1b5">Preferences</button>
     </div>
   </div>
 
-  <!-- Header -->
-  <header class="sticky top-0 z-50 glass border-b border-white/5">
-    <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
-      <a href="#" class="flex items-center gap-2 font-bold tracking-tight text-lg">
-        <span class="inline-flex w-7 h-7 rounded-lg bg-white text-black items-center justify-center text-xs font-black">F</span>
-        FTMO
-      </a>
-      <div class="flex items-center gap-2">
-        <button class="hidden sm:inline-flex text-sm px-3 py-1.5 rounded-lg border border-white/10">Log in</button>
-        <button class="text-sm px-3 py-1.5 rounded-lg btn-blue font-semibold">Client Area</button>
-        <button id="menuBtn" class="sm:hidden p-2 rounded-lg border border-white/10" aria-label="Menu">☰</button>
+  <header>
+    <div class="wrap bar">
+      <a class="logo" href="#"><span class="mark"></span> Northline</a>
+      <nav>
+        <a href="#why">Why us</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#how">How it works</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="btn btn-ghost" style="height:38px" href="#">Log in</a>
+        <a class="btn btn-blue" style="height:38px" href="#pricing">Client Area</a>
+        <button class="icon-btn" id="menuBtn" aria-label="Open menu">☰</button>
       </div>
+    </div>
+    <div class="drawer" id="drawer">
+      <a href="#why">Why us</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#how">How it works</a>
+      <a href="#support">Support</a>
+      <a href="#faq">FAQ</a>
     </div>
   </header>
 
-  <main class="max-w-6xl mx-auto px-4">
-
-    <!-- Hero Instant Account -->
-    <section class="pt-8 pb-6 text-center fade-up">
-      <p class="text-xs uppercase tracking-widest text-blue-400 font-semibold mb-3">New</p>
-      <h1 class="text-3xl sm:text-5xl font-extrabold leading-tight mb-3">
-        FTMO Instant Account
-      </h1>
-      <p class="text-ftmo-muted text-sm sm:text-base max-w-xl mx-auto mb-6">
-        Your direct access to an up to $200k FTMO Account with 10% Max Loss,
-        90% Reward Ratio, and up to 1:100 leverage. Trade for rewards from day one.
-      </p>
-      <div class="flex flex-col sm:flex-row gap-3 justify-center">
-        <a href="#pricing" class="px-6 py-3 rounded-xl btn-blue font-semibold">Get Started</a>
-        <a href="#how" class="px-6 py-3 rounded-xl btn-outline font-semibold">Learn More</a>
-      </div>
-      <div class="mt-8 flex flex-wrap justify-center gap-4 text-xs text-ftmo-muted">
-        <span class="flex items-center gap-1">🏆 Forbes · Entrepreneur</span>
-        <span>Up to $200k FTMO Account</span>
-        <span>Support in 21 languages</span>
-        <span>4 Trading Platforms</span>
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero-copy">
+          <div class="kicker">New · Instant account</div>
+          <h1><span>Grow & monetize</span> your demo trading</h1>
+          <p class="lede">A prop-style evaluation desk. Pass a challenge, or start an instant simulated account and trade for performance rewards from day one.</p>
+        </div>
+        <article class="instant">
+          <h2>Instant account</h2>
+          <p>Direct access to a simulated account up to $200k. 10% max loss, up to 90% reward ratio, and as much as 1:100 leverage.</p>
+          <div class="row">
+            <a class="btn btn-blue" href="#pricing">Get Started</a>
+            <a class="btn btn-ghost" href="#how">Learn More</a>
+          </div>
+        </article>
+        <div class="truststrip">
+          <div><strong>Up to $200k</strong><span>Simulated account</span></div>
+          <div><strong>21 languages</strong><span>In-house support</span></div>
+          <div><strong>4 platforms</strong><span>MT4, MT5, cTrader, charts</span></div>
+          <div><strong>Since 2015</strong><span>Independent prop desk</span></div>
+        </div>
       </div>
     </section>
 
-    <!-- Why People Choose FTMO -->
-    <section class="py-10">
-      <h2 class="text-2xl sm:text-3xl font-extrabold text-center mb-6">Why People Choose FTMO</h2>
-      <div class="card overflow-hidden mb-5">
-        <div class="relative aspect-[16/10] bg-gradient-to-br from-blue-900/60 to-black flex items-end p-4"
-             style="background-image: linear-gradient(to top, rgba(0,0,0,.75), transparent), url('https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&q=80'); background-size: cover; background-position: center;">
-          <div>
-            <p class="text-xl font-bold">More Power, Less Risk</p>
-            <p class="text-sm text-white/80">Up to $200k simulated capital</p>
+    <section id="why">
+      <div class="wrap">
+        <h2 class="sec">Why people choose this desk</h2>
+        <p class="sub">Capital, tools, and a support team that actually answers.</p>
+        <div class="banner">
+          <div class="orbs" aria-hidden="true"><i></i><i></i></div>
+          <div class="cap">
+            <h3>More size. Clear risk.</h3>
+            <p class="muted" style="margin:4px 0 0">Up to $200k simulated buying power.</p>
           </div>
         </div>
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div class="card p-4">
-          <div class="text-blue-400 text-xl mb-2">🏆</div>
-          <p class="font-semibold text-sm mb-1">Rewards</p>
-          <p class="text-xs text-ftmo-muted">Fast and easy rewards withdrawals</p>
-        </div>
-        <div class="card p-4">
-          <div class="text-blue-400 text-xl mb-2">🎧</div>
-          <p class="font-semibold text-sm mb-1">Advanced Support</p>
-          <p class="text-xs text-ftmo-muted">Dedicated support via live chat, email, or WhatsApp</p>
-        </div>
-        <div class="card p-4">
-          <div class="text-blue-400 text-xl mb-2">🛠️</div>
-          <p class="font-semibold text-sm mb-1">Tools & Services</p>
-          <p class="text-xs text-ftmo-muted">Tailored tools & services to support your growth</p>
-        </div>
-        <div class="card p-4">
-          <div class="text-blue-400 text-xl mb-2">✓</div>
-          <p class="font-semibold text-sm mb-1">Free Trial</p>
-          <p class="text-xs text-ftmo-muted">As many Free Trials as you need</p>
+        <div class="grid-2 features">
+          <article class="feature"><div class="ic">%</div><h3>Rewards</h3><p>Performance rewards with a straightforward payout path.</p></article>
+          <article class="feature"><div class="ic">24</div><h3>Advanced support</h3><p>Live chat, email, and phone. A real desk, not a bot farm.</p></article>
+          <article class="feature"><div class="ic">⌘</div><h3>Tools</h3><p>Journal, calendar, and account stats built around the rules.</p></article>
+          <article class="feature"><div class="ic">∞</div><h3>Free trial</h3><p>Practice on a trial as often as you need before you pay.</p></article>
         </div>
       </div>
     </section>
 
-    <!-- Pricing / Choose Path -->
-    <section id="pricing" class="py-10">
-      <h2 class="text-2xl sm:text-3xl font-extrabold text-center mb-2">Choose Your Path with FTMO</h2>
-      <p class="text-center text-ftmo-muted text-sm mb-6">Pick the way you start. The standard stays the same.</p>
-
-      <div class="flex justify-center gap-2 mb-4">
-        <button data-path="2step" class="path-tab px-4 py-2 rounded-full text-sm font-semibold bg-white text-black">2-Step</button>
-        <button data-path="1step" class="path-tab px-4 py-2 rounded-full text-sm font-semibold border border-white/15 text-white/80">1-Step</button>
-        <button data-path="instant" class="path-tab px-4 py-2 rounded-full text-sm font-semibold border border-white/15 text-white/80">
-          <span class="text-[10px] text-emerald-400 mr-1">New</span> Instant
-        </button>
-      </div>
-
-      <div class="flex items-center justify-between mb-4 text-xs">
-        <div class="flex gap-2">
-          <button class="px-3 py-1.5 rounded-lg border border-white/15 font-semibold">USD</button>
-          <button class="px-3 py-1.5 rounded-lg text-ftmo-muted">EUR</button>
-          <button class="px-3 py-1.5 rounded-lg text-ftmo-muted">GBP</button>
+    <section id="pricing">
+      <div class="wrap">
+        <h2 class="sec">Choose your path</h2>
+        <p class="sub">Pick how you start. The risk rules stay readable.</p>
+        <div class="pills" id="paths">
+          <button class="pill on" data-path="2">2-Step</button>
+          <button class="pill" data-path="1">1-Step</button>
+          <button class="pill" data-path="i"><span class="new">New</span>Instant</button>
         </div>
-        <button class="text-blue-400">Futures Pricing →</button>
-      </div>
-
-      <div class="flex gap-2 overflow-x-auto hide-scroll pb-2 mb-4" id="sizeTabs">
-        <button data-size="10k" class="size-tab shrink-0 px-4 py-2 rounded-full text-sm font-semibold bg-white text-black">10k</button>
-        <button data-size="25k" class="size-tab shrink-0 px-4 py-2 rounded-full text-sm font-semibold border border-white/15">25k</button>
-        <button data-size="50k" class="size-tab shrink-0 px-4 py-2 rounded-full text-sm font-semibold border border-white/15">50k</button>
-        <button data-size="100k" class="size-tab shrink-0 px-4 py-2 rounded-full text-sm font-semibold border border-white/15">100k</button>
-        <button data-size="200k" class="size-tab shrink-0 px-4 py-2 rounded-full text-sm font-semibold border border-white/15">200k</button>
-      </div>
-
-      <div id="priceCards" class="grid sm:grid-cols-2 gap-4">
-        <!-- filled by JS -->
-      </div>
-
-      <p class="text-center text-xs text-ftmo-muted mt-5">You will also get access to:</p>
-      <div class="flex flex-wrap justify-center gap-2 mt-2 text-xs">
-        <span class="px-3 py-1.5 rounded-full border border-white/10">FTMO Community Profile</span>
-        <span class="px-3 py-1.5 rounded-full border border-white/10">FTMO Academy</span>
-        <span class="px-3 py-1.5 rounded-full border border-white/10">Psychology Course</span>
-        <span class="px-3 py-1.5 rounded-full border border-white/10">Account MetriX</span>
-      </div>
-    </section>
-
-    <!-- Trusted -->
-    <section class="py-10">
-      <h2 class="text-2xl sm:text-3xl font-extrabold text-center mb-6">Trusted by Millions of Traders</h2>
-      <div class="grid grid-cols-3 gap-3 text-center mb-8">
-        <div><p class="text-xl sm:text-2xl font-black">4.5M+</p><p class="text-[10px] text-ftmo-muted">Customers worldwide</p></div>
-        <div><p class="text-xl sm:text-2xl font-black">$650M+</p><p class="text-[10px] text-ftmo-muted">Paid in rewards</p></div>
-        <div><p class="text-xl sm:text-2xl font-black">140+</p><p class="text-[10px] text-ftmo-muted">Countries served</p></div>
-      </div>
-
-      <div class="flex gap-3 overflow-x-auto hide-scroll pb-2">
-        <article class="card shrink-0 w-64 p-3">
-          <div class="aspect-video rounded-xl bg-black/50 mb-3 flex items-center justify-center text-3xl">▶</div>
-          <p class="font-semibold">Paul <span class="text-xs text-ftmo-muted font-normal">USA</span></p>
-          <p class="text-xs text-ftmo-muted mt-1">Rewards $500,180 · Scalper</p>
-        </article>
-        <article class="card shrink-0 w-64 p-3">
-          <div class="aspect-video rounded-xl bg-black/50 mb-3 flex items-center justify-center text-3xl">▶</div>
-          <p class="font-semibold">Maik <span class="text-xs text-ftmo-muted font-normal">Germany</span></p>
-          <p class="text-xs text-ftmo-muted mt-1">Rewards $114,907 · Swing trader</p>
-        </article>
-        <article class="card shrink-0 w-64 p-3">
-          <div class="aspect-video rounded-xl bg-black/50 mb-3 flex items-center justify-center text-3xl">▶</div>
-          <p class="font-semibold">Cinthya <span class="text-xs text-ftmo-muted font-normal">Ecuador</span></p>
-          <p class="text-xs text-ftmo-muted mt-1">Rewards $41,018 · Day trader</p>
-        </article>
-      </div>
-      <div class="text-center mt-4">
-        <a href="https://www.trustpilot.com/review/ftmo.com" class="text-sm text-blue-400">Show more on Trustpilot ↗</a>
-      </div>
-    </section>
-
-    <!-- How It Works -->
-    <section id="how" class="py-10">
-      <h2 class="text-2xl sm:text-3xl font-extrabold text-center mb-6">How It Works</h2>
-      <div class="space-y-3">
-        <div class="card p-5 border-l-4 border-blue-500">
-          <p class="text-[10px] uppercase tracking-wider text-blue-400 font-bold mb-1">Evaluation Process</p>
-          <h3 class="font-bold text-lg mb-1">Prove your skills</h3>
-          <p class="text-sm text-ftmo-muted">Pass the 1-Step or 2-Step Evaluation Process to gain your FTMO Account, or trade towards your Rewards from day one with the FTMO Instant Account.</p>
+        <div class="tools">
+          <div class="pills" style="margin:0">
+            <button class="pill on" type="button">USD</button>
+            <button class="pill" type="button">EUR</button>
+            <button class="pill" type="button">GBP</button>
+          </div>
+          <a href="#pricing" style="color:#7eb0ff;font-size:13px;font-weight:600">Futures pricing →</a>
         </div>
-        <div class="card p-5 border-l-4 border-emerald-500">
-          <p class="text-[10px] uppercase tracking-wider text-emerald-400 font-bold mb-1">FTMO Account</p>
-          <h3 class="font-bold text-lg mb-1">Earn real-money rewards</h3>
-          <p class="text-sm text-ftmo-muted">Trade in a simulated environment and earn performance-based rewards.</p>
+        <div class="sizes" id="sizes">
+          <button class="pill on" data-size="10">10k</button>
+          <button class="pill" data-size="25">25k</button>
+          <button class="pill" data-size="50">50k</button>
+          <button class="pill" data-size="100">100k</button>
+          <button class="pill" data-size="200">200k</button>
         </div>
-        <div class="card p-5 border-l-4 border-orange-400">
-          <p class="text-[10px] uppercase tracking-wider text-orange-400 font-bold mb-1">Premium Programme</p>
-          <h3 class="font-bold text-lg mb-1">Achieve More. Gain More.</h3>
-          <p class="text-sm text-ftmo-muted">Access exclusive benefits with Premium Programme and Quantlane by FTMO.</p>
-        </div>
-      </div>
-      <div class="flex gap-3 justify-center mt-6">
-        <a href="#pricing" class="px-5 py-2.5 rounded-xl btn-blue font-semibold text-sm">Trade with FTMO</a>
-        <a href="#how" class="px-5 py-2.5 rounded-xl btn-outline font-semibold text-sm">How it works</a>
-      </div>
-    </section>
-
-    <!-- Platforms -->
-    <section class="py-10">
-      <h2 class="text-2xl font-extrabold text-center mb-3">We Support Major Platforms</h2>
-      <p class="text-center text-sm text-ftmo-muted mb-6 max-w-lg mx-auto">
-        Choose between MT4, MT5, TradingView and cTrader. Pick the professional trading platform that suits you best.
-      </p>
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div class="card p-4 text-center text-sm font-semibold">MetaTrader 4</div>
-        <div class="card p-4 text-center text-sm font-semibold">MetaTrader 5</div>
-        <div class="card p-4 text-center text-sm font-semibold">TradingView</div>
-        <div class="card p-4 text-center text-sm font-semibold">cTrader</div>
-      </div>
-      <div class="text-center mt-4">
-        <a href="#" class="text-sm text-blue-400">Show more</a>
-      </div>
-    </section>
-
-    <!-- Academy / Elevate -->
-    <section class="py-10">
-      <h2 class="text-2xl sm:text-3xl font-extrabold text-center mb-2">Elevate Your Trading with FTMO</h2>
-      <p class="text-center text-sm text-ftmo-muted mb-6 max-w-lg mx-auto">
-        Learn with FTMO Academy, gain inspiration from our YouTube channel and connect with thousands of traders on Discord.
-      </p>
-      <div class="card overflow-hidden mb-4">
-        <div class="aspect-video bg-gradient-to-br from-slate-800 to-black flex items-center justify-center text-ftmo-muted text-sm">Academy preview</div>
-        <div class="p-5">
-          <p class="text-xs text-blue-400 font-semibold mb-1">Academy</p>
-          <h3 class="font-bold text-lg mb-2">Expand Your Trading Knowledge With FTMO Academy</h3>
-          <ul class="text-sm text-ftmo-muted space-y-1 mb-4">
-            <li>• Expand your trading knowledge</li>
-            <li>• Perfect for beginners and intermediate traders</li>
-            <li>• Includes the Trading Psychology Course</li>
-          </ul>
-          <a href="#" class="inline-flex px-5 py-2.5 rounded-xl btn-blue text-sm font-semibold">Start course</a>
-        </div>
-      </div>
-      <div class="grid sm:grid-cols-3 gap-3">
-        <div class="card p-4">
-          <p class="text-xs text-ftmo-muted mb-1">100k+ members</p>
-          <h3 class="font-bold mb-1">Join Our FTMO Discord</h3>
-          <p class="text-xs text-ftmo-muted mb-3">Trade smarter. Together.</p>
-          <a href="#" class="text-sm text-blue-400 font-semibold">Start the chat →</a>
-        </div>
-        <div class="card p-4">
-          <p class="text-xs text-ftmo-muted mb-1">40k+ members</p>
-          <h3 class="font-bold mb-1">Create your verified trading profile</h3>
-          <p class="text-xs text-ftmo-muted mb-3">Certificates & top trades in one place.</p>
-          <a href="#" class="text-sm text-blue-400 font-semibold">Join FTMO Community →</a>
-        </div>
-        <div class="card p-4">
-          <p class="text-xs text-ftmo-muted mb-1">400k+ subscribers</p>
-          <h3 class="font-bold mb-1">Watch. Learn. Trade</h3>
-          <p class="text-xs text-ftmo-muted mb-3">Stories of successful traders on YouTube.</p>
-          <a href="#" class="text-sm text-blue-400 font-semibold">FTMO on YouTube →</a>
+        <div class="price-grid" id="prices"></div>
+        <p class="sub" style="margin-top:22px;margin-bottom:8px">Included with an active account</p>
+        <div class="chips">
+          <span class="chip">Community profile</span>
+          <span class="chip">Academy</span>
+          <span class="chip">Psychology course</span>
+          <span class="chip">Account metrics</span>
+          <span class="chip">Economic calendar</span>
         </div>
       </div>
     </section>
 
-    <!-- People of FTMO -->
-    <section class="py-10">
-      <div class="card overflow-hidden">
-        <div class="aspect-[16/9] bg-gradient-to-br from-blue-700 to-blue-950 flex items-end p-5"
-             style="background-image: linear-gradient(to top, rgba(0,0,0,.7), transparent), url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&q=80'); background-size: cover; background-position: center;">
+    <section>
+      <div class="wrap">
+        <h2 class="sec">Trusted by active traders</h2>
+        <div class="stats">
+          <div><b>4.5M+</b><span>Customers worldwide</span></div>
+          <div><b>$650M+</b><span>Paid in rewards</span></div>
+          <div><b>140+</b><span>Countries served</span></div>
+        </div>
+        <div class="stories">
+          <article class="card story">
+            <div class="shot"><span class="play">▶</span></div>
+            <strong>Paul</strong> <span class="muted">USA</span>
+            <div class="meta"><span>Rewards earned<br><b style="color:#fff">$500,180</b></span><span>Style<br><b style="color:#fff">Scalper</b></span></div>
+          </article>
+          <article class="card story">
+            <div class="shot"><span class="play">▶</span></div>
+            <strong>Maik</strong> <span class="muted">Germany</span>
+            <div class="meta"><span>Rewards earned<br><b style="color:#fff">$114,907</b></span><span>Style<br><b style="color:#fff">Swing</b></span></div>
+          </article>
+          <article class="card story">
+            <div class="shot"><span class="play">▶</span></div>
+            <strong>Cinthya</strong> <span class="muted">Ecuador</span>
+            <div class="meta"><span>Rewards earned<br><b style="color:#fff">$41,018</b></span><span>Style<br><b style="color:#fff">Day trader</b></span></div>
+          </article>
+        </div>
+        <p style="text-align:center;margin-top:14px"><a href="https://www.trustpilot.com/review/ftmo.com" style="color:#7eb0ff;font-weight:600">Show more on Trustpilot ↗</a></p>
+      </div>
+    </section>
+
+    <section id="how">
+      <div class="wrap">
+        <h2 class="sec">How it works</h2>
+        <div class="steps">
+          <article class="step blue">
+            <div class="tag">Evaluation</div>
+            <h3>Prove your skills</h3>
+            <p>Pass a 1-step or 2-step evaluation, or trade toward rewards immediately on an instant account.</p>
+            <div class="mock"></div>
+          </article>
+          <article class="step green">
+            <div class="tag">Simulated account</div>
+            <h3>Earn performance rewards</h3>
+            <p>Trade in a simulated book. Rewards follow the published split, not a vague promise.</p>
+            <div class="mock"></div>
+          </article>
+          <article class="step orange">
+            <div class="tag">Premium</div>
+            <h3>Achieve more. Gain more.</h3>
+            <p>Extra benefits after you are consistent: tighter fees, more size, priority tools.</p>
+            <div class="mock"></div>
+          </article>
+        </div>
+        <div class="centers">
+          <a class="btn btn-blue" href="#pricing">Trade</a>
+          <a class="btn btn-ghost" href="#how">How it works</a>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2 class="sec">Major platforms</h2>
+        <p class="sub">Use the terminal you already know. Same rules, different screen.</p>
+        <div class="plats">
+          <div class="card plat">MetaTrader 4</div>
+          <div class="card plat">MetaTrader 5</div>
+          <div class="card plat">TradingView</div>
+          <div class="card plat">cTrader</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2 class="sec">Elevate the work</h2>
+        <p class="sub">A course, a chat, and a public profile. Not another locked PDF.</p>
+        <div class="split">
+          <div class="academy-visual" role="img" aria-label="Course preview"></div>
           <div>
-            <h2 class="text-2xl font-extrabold mb-1">People of FTMO</h2>
-            <p class="text-sm text-white/80 max-w-md">Our modern prop firm grew from a handful of young day traders, including the future founders who pursued the idea in 2015.</p>
-            <div class="flex gap-2 mt-3">
-              <a href="#" class="px-4 py-2 rounded-lg bg-white text-black text-sm font-semibold">About Us</a>
-              <a href="#" class="px-4 py-2 rounded-lg border border-white/30 text-sm font-semibold">Careers →</a>
+            <div class="kicker">Academy</div>
+            <h3 style="font-size:28px;letter-spacing:-.03em;margin:8px 0">Expand your trading knowledge</h3>
+            <ul class="checks">
+              <li>Built for beginners and intermediate traders</li>
+              <li>Includes a trading psychology module</li>
+              <li>Short lessons you can finish between sessions</li>
+            </ul>
+            <a class="btn btn-blue" href="#">Start course</a>
+          </div>
+        </div>
+        <div class="three">
+          <article class="card mini"><div class="swatch s1"></div><div class="muted" style="font-size:12px">100k+ members</div><h3>Join the Discord</h3><p class="muted">Trade ideas and room reviews.</p><a href="#" style="color:#7eb0ff;font-weight:700">Start the chat →</a></article>
+          <article class="card mini"><div class="swatch s2"></div><div class="muted" style="font-size:12px">40k+ profiles</div><h3>Verified profile</h3><p class="muted">Certificates and stats in one place.</p><a href="#" style="color:#7eb0ff;font-weight:700">Join community →</a></article>
+          <article class="card mini"><div class="swatch s3"></div><div class="muted" style="font-size:12px">400k+ subscribers</div><h3>Watch. Learn. Trade.</h3><p class="muted">Long-form trader stories.</p><a href="#" style="color:#7eb0ff;font-weight:700">YouTube →</a></article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="people">
+          <h2>People of the desk</h2>
+          <p>Started by a small group of day traders in 2015. Still an in-house team, not a rented brand.</p>
+          <div class="row" style="margin-top:12px">
+            <a class="btn btn-white" href="#">About us</a>
+            <a class="btn btn-ghost" href="#">Careers</a>
+          </div>
+        </div>
+        <div class="nums">
+          <div><b>2015</b><div class="muted">Since</div></div>
+          <div><b>300+</b><div class="muted">Team</div></div>
+          <div><b>140+</b><div class="muted">Countries</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="support">
+      <div class="wrap">
+        <h2 class="sec">Customer support</h2>
+        <p class="sub">In-house, 24/7, across 21 languages.</p>
+        <div class="support-grid">
+          <div>
+            <div class="row">
+              <a class="btn btn-blue" href="#">Chat with us</a>
+              <a class="btn btn-ghost" href="#">Start the chat</a>
+            </div>
+            <p>Email <a href="mailto:support@example.com" style="color:#7eb0ff">support@example.com</a><br>Phone <a href="tel:+420910920310" style="color:#7eb0ff">+420 910 920 310</a></p>
+            <div class="langs">
+              <span>English</span><span>Czech</span><span>German</span><span>Spanish</span><span>French</span><span>Arabic</span><span>Russian</span><span>Portuguese</span><span>Italian</span><span>Polish</span>
             </div>
           </div>
-        </div>
-      </div>
-      <div class="grid grid-cols-3 gap-3 mt-4 text-center">
-        <div class="card p-3"><p class="font-black text-lg">2015</p><p class="text-[10px] text-ftmo-muted">Since</p></div>
-        <div class="card p-3"><p class="font-black text-lg">300+</p><p class="text-[10px] text-ftmo-muted">Team Members</p></div>
-        <div class="card p-3"><p class="font-black text-lg">140+</p><p class="text-[10px] text-ftmo-muted">Countries Served</p></div>
-      </div>
-    </section>
-
-    <!-- Customer Support -->
-    <section class="py-10">
-      <h2 class="text-2xl font-extrabold text-center mb-2">Customer Support</h2>
-      <p class="text-center text-sm text-ftmo-muted mb-6 max-w-lg mx-auto">
-        Our dedicated in-house customer support team is available 24/7. Assistance in 21 languages. Fast and reliable support whenever you need it.
-      </p>
-      <div class="flex flex-col sm:flex-row gap-3 justify-center mb-4">
-        <a href="#" class="px-5 py-3 rounded-xl btn-blue text-sm font-semibold text-center">Chat with us</a>
-        <a href="#" class="px-5 py-3 rounded-xl btn-outline text-sm font-semibold text-center">Start the chat</a>
-      </div>
-      <div class="text-center text-sm space-y-1">
-        <p>E-mail: <a class="text-blue-400" href="mailto:support@ftmo.com">support@ftmo.com</a></p>
-        <p>Phone: <a class="text-blue-400" href="tel:+420910920310">+420 910 920 310</a></p>
-      </div>
-      <div class="flex flex-wrap justify-center gap-2 mt-4 text-[10px] text-ftmo-muted">
-        <span class="px-2 py-1 border border-white/10 rounded">Russian</span>
-        <span class="px-2 py-1 border border-white/10 rounded">Arabic</span>
-        <span class="px-2 py-1 border border-white/10 rounded">Czech</span>
-        <span class="px-2 py-1 border border-white/10 rounded">Spanish</span>
-        <span class="px-2 py-1 border border-white/10 rounded">Korean</span>
-        <span class="px-2 py-1 border border-white/10 rounded">Persian</span>
-        <span class="px-2 py-1 border border-white/10 rounded">Swahili</span>
-        <span class="px-2 py-1 border border-white/10 rounded">Filipino</span>
-      </div>
-      <div class="grid grid-cols-2 gap-3 mt-5 text-center">
-        <div class="card p-4"><p class="text-2xl font-black">60+</p><p class="text-xs text-ftmo-muted">Customer Team Members</p></div>
-        <div class="card p-4"><p class="text-2xl font-black">21</p><p class="text-xs text-ftmo-muted">Languages Spoken</p></div>
-      </div>
-    </section>
-
-    <!-- FAQ -->
-    <section class="py-10">
-      <h2 class="text-2xl font-extrabold text-center mb-2">Frequently Asked Questions</h2>
-      <p class="text-center text-sm text-ftmo-muted mb-6">Find your answers here.</p>
-      <div class="space-y-2 max-w-2xl mx-auto">
-        <details class="card px-4 py-3">
-          <summary class="font-semibold text-sm flex justify-between">How to start? <span class="text-ftmo-muted">+</span></summary>
-          <p class="text-sm text-ftmo-muted mt-2 pb-1">Choose a Challenge or Instant Account, complete registration, and start trading on a demo environment under FTMO rules.</p>
-        </details>
-        <details class="card px-4 py-3">
-          <summary class="font-semibold text-sm flex justify-between">I have successfully passed, what to do now? <span class="text-ftmo-muted">+</span></summary>
-          <p class="text-sm text-ftmo-muted mt-2 pb-1">You will receive instructions to activate your FTMO Account and can start trading for rewards according to the programme rules.</p>
-        </details>
-        <details class="card px-4 py-3">
-          <summary class="font-semibold text-sm flex justify-between">Can I trade news? <span class="text-ftmo-muted">+</span></summary>
-          <p class="text-sm text-ftmo-muted mt-2 pb-1">News trading rules depend on your account type. Check the official FAQ for restricted practices around high-impact events.</p>
-        </details>
-        <details class="card px-4 py-3">
-          <summary class="font-semibold text-sm flex justify-between">Who is an FTMO Trader, and how do I become one? <span class="text-ftmo-muted">+</span></summary>
-          <p class="text-sm text-ftmo-muted mt-2 pb-1">An FTMO Trader has successfully passed the Evaluation (or Instant path) and trades under an FTMO Account for performance-based rewards.</p>
-        </details>
-        <details class="card px-4 py-3">
-          <summary class="font-semibold text-sm flex justify-between">Can I modify my platform or account type? <span class="text-ftmo-muted">+</span></summary>
-          <p class="text-sm text-ftmo-muted mt-2 pb-1">Platform choices (MT4/MT5/cTrader/TradingView) are selected during setup. Account type changes follow FTMO’s published rules.</p>
-        </details>
-        <details class="card px-4 py-3">
-          <summary class="font-semibold text-sm flex justify-between">Can I hold positions overnight or over the weekend? <span class="text-ftmo-muted">+</span></summary>
-          <p class="text-sm text-ftmo-muted mt-2 pb-1">Holding rules depend on the specific FTMO programme. Review the trading objectives for overnight and weekend policies.</p>
-        </details>
-      </div>
-      <p class="text-center text-xs text-ftmo-muted mt-4">Can't find the answer? <a href="#" class="text-blue-400">Show all FAQs</a></p>
-    </section>
-
-    <!-- CTA -->
-    <section class="py-10">
-      <div class="card p-6 sm:p-8 bg-gradient-to-br from-blue-600/30 to-blue-950/50 border-blue-500/20 text-center">
-        <h2 class="text-2xl sm:text-3xl font-extrabold mb-3">Start Trading With FTMO Today</h2>
-        <ul class="text-sm text-white/80 space-y-1 mb-6">
-          <li>• As many Free Trials as you need</li>
-          <li>• Up to $200,000 account</li>
-          <li>• No time limit</li>
-        </ul>
-        <div class="flex flex-col sm:flex-row gap-3 justify-center">
-          <a href="#pricing" class="px-6 py-3 rounded-xl bg-white text-black font-bold">Trade with FTMO</a>
-          <a href="#" class="px-6 py-3 rounded-xl border border-white/30 font-semibold">Free Trial</a>
+          <div class="big2">
+            <div class="card"><b>60+</b><span class="muted">Support teammates</span></div>
+            <div class="card"><b>21</b><span class="muted">Languages spoken</span></div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Trust strip -->
-    <section class="py-8 text-center">
-      <p class="text-xs uppercase tracking-widest text-ftmo-muted mb-3">Worldwide Reviews</p>
-      <p class="font-bold mb-4">Prove Your Skills with a Trusted Firm</p>
-      <div class="grid grid-cols-3 gap-3 max-w-md mx-auto text-sm">
-        <div><p class="font-black">4.5M+</p><p class="text-[10px] text-ftmo-muted">Customers</p></div>
-        <div><p class="font-black">$650M+</p><p class="text-[10px] text-ftmo-muted">Rewards</p></div>
-        <div><p class="font-black">4.8/5</p><p class="text-[10px] text-ftmo-muted">Trustpilot</p></div>
+    <section id="faq">
+      <div class="wrap">
+        <h2 class="sec">Frequently asked questions</h2>
+        <p class="sub">Short answers. The full rulebook lives in the FAQ.</p>
+        <div class="faqs">
+          <details class="card" open><summary>How to start? <span>+</span></summary><p>Pick a challenge or an instant account, create a profile, and trade inside the simulated environment under the published rules.</p></details>
+          <details class="card"><summary>I passed. What now? <span>+</span></summary><p>You get steps to open the funded simulated account and can request rewards once the cycle rules are met.</p></details>
+          <details class="card"><summary>Can I trade news? <span>+</span></summary><p>Depends on the account. High-impact windows can be restricted. Check the objectives for your path.</p></details>
+          <details class="card"><summary>Who is a funded trader here? <span>+</span></summary><p>Someone who cleared the evaluation, or who is on the instant path, and trades for a performance reward.</p></details>
+          <details class="card"><summary>Can I change platform or size? <span>+</span></summary><p>Platform is chosen at checkout. Size changes follow the comparison table, not a silent upgrade.</p></details>
+          <details class="card"><summary>Overnight or weekend holds? <span>+</span></summary><p>Allowed on some products, blocked on others. The objectives page is the source of truth.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="cta">
+          <div>
+            <h2>Start today</h2>
+            <ul>
+              <li>As many free trials as you need</li>
+              <li>Accounts up to $200,000</li>
+              <li>No time limit on the evaluation</li>
+            </ul>
+            <div class="row">
+              <a class="btn btn-white" href="#pricing">Trade</a>
+              <a class="btn btn-ghost" href="#pricing">Free trial</a>
+            </div>
+          </div>
+          <div class="screen" role="img" aria-label="Chart preview"></div>
+        </div>
+        <div class="stats" style="margin-top:28px">
+          <div><b>4.5M+</b><span>Customers</span></div>
+          <div><b>$650M+</b><span>Rewards</span></div>
+          <div><b>4.8/5</b><span>Public reviews</span></div>
+        </div>
       </div>
     </section>
   </main>
 
-  <!-- Footer -->
-  <footer class="border-t border-white/5 mt-6 pt-8 pb-12 px-4">
-    <div class="max-w-6xl mx-auto">
-      <div class="flex items-center gap-2 font-bold mb-6">
-        <span class="inline-flex w-7 h-7 rounded-lg bg-white text-black items-center justify-center text-xs font-black">F</span>
-        FTMO
+  <footer>
+    <div class="wrap">
+      <div class="foot">
+        <div>
+          <a class="logo" href="#"><span class="mark"></span> Northline</a>
+          <p>Demo accounts only. Trading is simulated. Rewards are contractual, not investment returns.</p>
+        </div>
+        <div><h4>Product</h4><ul><li><a href="#pricing">Pricing</a></li><li><a href="#how">How it works</a></li><li><a href="#">Free trial</a></li><li><a href="#">Platforms</a></li></ul></div>
+        <div><h4>Support</h4><ul><li><a href="#faq">FAQ</a></li><li><a href="#">Chat</a></li><li><a href="mailto:support@example.com">Email</a></li><li><a href="tel:+420910920310">+420 910 920 310</a></li></ul></div>
+        <div><h4>Rules</h4><ul><li><a href="#">Objectives</a></li><li><a href="#">Forbidden practices</a></li><li><a href="#">Comparison</a></li></ul></div>
+        <div><h4>Company</h4><ul><li><a href="#">About</a></li><li><a href="#">Careers</a></li><li><a href="#">Contact</a></li></ul></div>
       </div>
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 text-xs text-ftmo-muted">
-        <div>
-          <p class="text-white font-semibold mb-2">Top Searches</p>
-          <ul class="space-y-1">
-            <li><a href="#">FAQ</a></li>
-            <li><a href="#">How It Works</a></li>
-            <li><a href="#">Affiliate Programme</a></li>
-            <li><a href="#">Trading Objectives</a></li>
-          </ul>
-        </div>
-        <div>
-          <p class="text-white font-semibold mb-2">Support</p>
-          <ul class="space-y-1">
-            <li><a href="#">Chat with us</a></li>
-            <li><a href="mailto:support@ftmo.com">support@ftmo.com</a></li>
-            <li><a href="tel:+420910920310">+420 910 920 310</a></li>
-          </ul>
-        </div>
-        <div>
-          <p class="text-white font-semibold mb-2">CFD / Futures</p>
-          <ul class="space-y-1">
-            <li><a href="#">Pricing</a></li>
-            <li><a href="#">Free Trial</a></li>
-            <li><a href="#">Comparison Table</a></li>
-            <li><a href="#">Forbidden Practices</a></li>
-          </ul>
-        </div>
-        <div>
-          <p class="text-white font-semibold mb-2">About</p>
-          <ul class="space-y-1">
-            <li><a href="#">About Us</a></li>
-            <li><a href="#">Careers</a></li>
-            <li><a href="#">Contact Us</a></li>
-            <li><a href="#">Press Releases</a></li>
-          </ul>
-        </div>
-      </div>
-      <p class="text-[10px] text-ftmo-muted mt-8 leading-relaxed">
-        Please note that all accounts we provide to our clients are demo accounts with fictitious funds and any trading is in a simulated environment only.
-      </p>
-      <p class="text-[10px] text-ftmo-muted mt-2">© FTMO. Landing recreation for structure/demo purposes.</p>
+      <p class="fine">This page is an original layout study. It is not affiliated with, or a copy of, any prop firm’s website, trademarks, or media.</p>
     </div>
   </footer>
 
-  <script>
-    function acceptCookies() {
-      document.getElementById('cookieBanner').classList.add('hidden');
-      try { localStorage.setItem('ftmo_cookies', '1'); } catch(e) {}
-    }
-    if (localStorage.getItem('ftmo_cookies') === '1') {
-      document.getElementById('cookieBanner').classList.add('hidden');
-    }
+<script>
+  const plans = {
+    "10":  { a: "$10,000",  fee: "€89",    avg: "€680",   best: false },
+    "25":  { a: "$25,000",  fee: "€250",   avg: "€1,431", best: false },
+    "50":  { a: "$50,000",  fee: "€345",   avg: "€2,805", best: false },
+    "100": { a: "$100,000", fee: "€439",   avg: "€5,957", best: true },
+    "200": { a: "$200,000", fee: "€1,080", avg: "€12,234", best: false }
+  };
+  const order = ["10","25","50","100","200"];
+  let current = "10";
 
-    // Pricing data (2-step USD illustrative from live site structure)
-    const plans = {
-      '10k':  { account: '$10,000',  fee: '€89',   avg: '€680',   best: false },
-      '25k':  { account: '$25,000',  fee: '€250',  avg: '€1,431', best: false },
-      '50k':  { account: '$50,000',  fee: '€345',  avg: '€2,805', best: false },
-      '100k': { account: '$100,000', fee: '€439',  avg: '€5,957', best: true },
-      '200k': { account: '$200,000', fee: '€1,080',avg: '€12,234',best: false },
-    };
+  function card(key, primary) {
+    const p = plans[key];
+    return `<article class="price ${p.best ? "best" : ""}">
+      ${p.best ? '<span class="badge">Best value</span>' : ""}
+      <div class="lbl">Account</div>
+      <div class="amt">${p.a}</div>
+      <div class="fee">One-time refundable fee from <b>${p.fee}</b></div>
+      <dl class="specs">
+        <div><dt>Profit target</dt><dd>10% / 5%</dd></div>
+        <div><dt>Max daily loss</dt><dd>5%</dd></div>
+        <div><dt>Max loss</dt><dd>10%</dd></div>
+        <div><dt>Min trading days</dt><dd>4 days</dd></div>
+        <div><dt>Trading period</dt><dd>Unlimited</dd></div>
+        <div><dt>Refund</dt><dd class="ok">Yes · 100%</dd></div>
+        <div><dt>Rewards</dt><dd>Up to 90%</dd></div>
+      </dl>
+      <a class="btn ${primary ? "btn-blue" : "btn-ghost"} btn-block" href="#">Start now</a>
+      <p class="avg">${p.avg} average reward</p>
+    </article>`;
+  }
+  function render() {
+    const i = order.indexOf(current);
+    const next = order[(i + 1) % order.length];
+    document.getElementById("prices").innerHTML = card(current, true) + card(next, false);
+  }
+  document.getElementById("sizes").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-size]");
+    if (!b) return;
+    current = b.dataset.size;
+    document.querySelectorAll("#sizes .pill").forEach(p => p.classList.toggle("on", p === b));
+    render();
+  });
+  document.getElementById("paths").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-path]");
+    if (!b) return;
+    document.querySelectorAll("#paths .pill").forEach(p => p.classList.toggle("on", p === b));
+  });
+  render();
 
-    function renderCards(sizeKey) {
-      const p = plans[sizeKey] || plans['10k'];
-      const box = document.getElementById('priceCards');
-      box.innerHTML = `
-        <div class="card p-5 relative ${p.best ? 'ring-1 ring-orange-400/50' : ''}">
-          ${p.best ? '<span class="absolute -top-2 right-4 text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-500 text-black">Best Value</span>' : ''}
-          <p class="text-xs text-ftmo-muted mb-1">Account</p>
-          <p class="text-3xl font-black mb-1">${p.account}</p>
-          <p class="text-xs text-ftmo-muted mb-4">One-time refundable fee from <span class="text-white font-semibold">${p.fee}</span></p>
-          <dl class="text-sm space-y-2 mb-5">
-            <div class="flex justify-between"><dt class="text-ftmo-muted">Profit Target</dt><dd>Phase 1 10% · Phase 2 5%</dd></div>
-            <div class="flex justify-between"><dt class="text-ftmo-muted">Max Daily Loss</dt><dd>5%</dd></div>
-            <div class="flex justify-between"><dt class="text-ftmo-muted">Max Loss</dt><dd>10%</dd></div>
-            <div class="flex justify-between"><dt class="text-ftmo-muted">Min Trading days</dt><dd>4 days</dd></div>
-            <div class="flex justify-between"><dt class="text-ftmo-muted">Trading Period</dt><dd>Unlimited</dd></div>
-            <div class="flex justify-between"><dt class="text-ftmo-muted">Refund</dt><dd class="text-emerald-400">Yes 100%</dd></div>
-            <div class="flex justify-between"><dt class="text-ftmo-muted">Rewards</dt><dd>Up to 90%</dd></div>
-          </dl>
-          <p class="text-xs text-ftmo-muted mb-3">${p.avg} Avg. Reward</p>
-          <a href="#" class="block text-center w-full py-3 rounded-xl btn-blue font-semibold text-sm">Start now</a>
-        </div>
-        <div class="card p-5 opacity-90">
-          <p class="text-xs text-ftmo-muted mb-1">Account</p>
-          <p class="text-3xl font-black mb-1">${sizeKey === '10k' ? '$25,000' : sizeKey === '25k' ? '$50,000' : sizeKey === '50k' ? '$100,000' : sizeKey === '100k' ? '$200,000' : '$10,000'}</p>
-          <p class="text-xs text-ftmo-muted mb-4">Compare other sizes with the tabs above</p>
-          <dl class="text-sm space-y-2 mb-5 text-ftmo-muted">
-            <div class="flex justify-between"><dt>Profit Target</dt><dd class="text-white">10% / 5%</dd></div>
-            <div class="flex justify-between"><dt>Max Daily Loss</dt><dd class="text-white">5%</dd></div>
-            <div class="flex justify-between"><dt>Max Loss</dt><dd class="text-white">10%</dd></div>
-            <div class="flex justify-between"><dt>Min Trading days</dt><dd class="text-white">4 days</dd></div>
-            <div class="flex justify-between"><dt>Trading Period</dt><dd class="text-white">Unlimited</dd></div>
-            <div class="flex justify-between"><dt>Refund</dt><dd class="text-emerald-400">Yes 100%</dd></div>
-            <div class="flex justify-between"><dt>Rewards</dt><dd class="text-white">Up to 90%</dd></div>
-          </dl>
-          <a href="#" class="block text-center w-full py-3 rounded-xl btn-outline font-semibold text-sm">Start now</a>
-        </div>
-      `;
-    }
+  function hideCookie() {
+    document.getElementById("cookie").classList.add("hidden");
+    try { localStorage.setItem("nl_cookie", "1"); } catch (e) {}
+  }
+  document.getElementById("accept").onclick = hideCookie;
+  document.getElementById("prefs").onclick = hideCookie;
+  if (localStorage.getItem("nl_cookie") === "1") hideCookie();
 
-    document.querySelectorAll('.size-tab').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.size-tab').forEach(b => {
-          b.classList.remove('bg-white', 'text-black');
-          b.classList.add('border', 'border-white/15');
-        });
-        btn.classList.add('bg-white', 'text-black');
-        btn.classList.remove('border', 'border-white/15');
-        renderCards(btn.dataset.size);
-      });
-    });
-
-    document.querySelectorAll('.path-tab').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.path-tab').forEach(b => {
-          b.classList.remove('bg-white', 'text-black');
-          b.classList.add('border', 'border-white/15', 'text-white/80');
-        });
-        btn.classList.add('bg-white', 'text-black');
-        btn.classList.remove('border', 'border-white/15', 'text-white/80');
-      });
-    });
-
-    renderCards('10k');
-  </script>
+  document.getElementById("menuBtn").onclick = () => {
+    document.getElementById("drawer").classList.toggle("open");
+  };
+</script>
 </body>
 </html>
