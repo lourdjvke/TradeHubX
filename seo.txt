@@ -1,0 +1,91 @@
+{
+  "title": "TradeHubX — Copy Top Traders Instantly",
+  "description": "Mirror expert trades across crypto, stocks, and commodities automatically. Secure copy-trading platform for beginners and pros.",
+  "image": "https://www.tradexxalpro.com/wp-content/uploads/2025/12/output-onlinepngtools-8.png",
+  "tags": [
+    "copy trading",
+    "crypto trading",
+    "forex",
+    "commodities",
+    "TradeHubX",
+    "social trading",
+    "automated trading"
+  ],
+  "author": "TradeHubX",
+  "robots": "index,follow",
+  "canonical": "https://tradehubx.getmach.cloud/",
+  "structuredData": {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "TradeHubX",
+    "url": "https://tradehubx.getmach.cloud",
+    "description": "Copy top traders instantly. Mirror expert trades across crypto, stocks, and commodities.",
+    "logo": "https://www.tradexxalpro.com/wp-content/uploads/2025/12/output-onlinepngtools-8.png"
+  },
+  "pages": {
+    "/": {
+      "title": "TradeHubX — Copy Top Traders Instantly",
+      "description": "Mirror expert trades across crypto, stocks, and commodities automatically. Secure platform for beginners and pros.",
+      "canonical": "https://tradehubx.getmach.cloud/",
+      "structuredData": {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "TradeHubX",
+        "url": "https://tradehubx.getmach.cloud",
+        "description": "Copy top traders instantly across crypto, stocks, and commodities.",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://tradehubx.getmach.cloud/?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    },
+    "/home.html": {
+      "title": "Dashboard — TradeHubX",
+      "description": "Your TradeHubX trading dashboard. Monitor positions, performance, and copy-trading activity in real time.",
+      "canonical": "https://tradehubx.getmach.cloud/home.html",
+      "robots": "noindex,nofollow"
+    },
+    "/plans.html": {
+      "title": "Pricing & Plans — TradeHubX",
+      "description": "Choose the right TradeHubX plan. Flexible copy-trading packages for every level of trader.",
+      "canonical": "https://tradehubx.getmach.cloud/plans.html"
+    },
+    "/portfolio.html": {
+      "title": "Portfolio — TradeHubX",
+      "description": "View and manage your TradeHubX portfolio. Track performance across mirrored strategies.",
+      "canonical": "https://tradehubx.getmach.cloud/portfolio.html",
+      "robots": "noindex,nofollow"
+    },
+    "/wallet.html": {
+      "title": "Wallet — TradeHubX",
+      "description": "Manage deposits, withdrawals, and balances on TradeHubX.",
+      "canonical": "https://tradehubx.getmach.cloud/wallet.html",
+      "robots": "noindex,nofollow"
+    },
+    "/auth.html": {
+      "title": "Login — TradeHubX",
+      "description": "Sign in to your TradeHubX account.",
+      "canonical": "https://tradehubx.getmach.cloud/auth.html",
+      "robots": "noindex,nofollow"
+    },
+    "/kyc.html": {
+      "title": "KYC Verification — TradeHubX",
+      "description": "Complete identity verification to unlock full TradeHubX features.",
+      "robots": "noindex,nofollow"
+    },
+    "/rewards.html": {
+      "title": "Rewards — TradeHubX",
+      "description": "Track and claim your TradeHubX rewards and referral bonuses.",
+      "robots": "noindex,nofollow"
+    },
+    "/admin.html": {
+      "title": "Admin — TradeHubX",
+      "robots": "noindex,nofollow"
+    },
+    "/admin-manage.html": {
+      "title": "Admin Settings — TradeHubX",
+      "robots": "noindex,nofollow"
+    }
+  }
+}
